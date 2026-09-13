@@ -1,0 +1,1 @@
+ALTER TABLE "agents" ADD COLUMN "soul_enabled" boolean DEFAULT true NOT NULL;

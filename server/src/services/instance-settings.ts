@@ -1,0 +1,204 @@
+import type { Db } from "@paperclipai/db";
+import { companies, instanceSettings } from "@paperclipai/db";
+import {
+  DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
+  DEFAULT_BACKUP_RETENTION,
+  DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
+  instanceGeneralSettingsSchema,
+  type InstanceGeneralSettings,
+  instanceExperimentalSettingsSchema,
+  type InstanceExperimentalSettings,
+  type PatchInstanceGeneralSettings,
+  type InstanceSettings,
+  type PatchInstanceSettings,
+  type PatchInstanceExperimentalSettings,
+} from "@paperclipai/shared";
+import { eq } from "drizzle-orm";
+
+const DEFAULT_SINGLETON_KEY = "default";
+const instanceGeneralSettingsStorageSchema = instanceGeneralSettingsSchema.strip();
+const instanceExperimentalSettingsStorageSchema = instanceExperimentalSettingsSchema.strip();
+
+function normalizeGeneralSettings(raw: unknown): InstanceGeneralSettings {
+  const parsed = instanceGeneralSettingsStorageSchema.safeParse(raw ?? {});
+  if (parsed.success) {
+    return {
+      censorUsernameInLogs: parsed.data.censorUsernameInLogs ?? false,
+      keyboardShortcuts: parsed.data.keyboardShortcuts ?? false,
+      feedbackDataSharingPreference:
+        parsed.data.feedbackDataSharingPreference ?? DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
+      backupRetention: parsed.data.backupRetention ?? DEFAULT_BACKUP_RETENTION,
+      // Absent => unrestricted; only carry through an explicit policy.
+      ...(parsed.data.executionMode ? { executionMode: parsed.data.executionMode } : {}),
+    };
+  }
+  return {
+    censorUsernameInLogs: false,
+    keyboardShortcuts: false,
+    feedbackDataSharingPreference: DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
+    backupRetention: DEFAULT_BACKUP_RETENTION,
+  };
+}
+
+export function normalizeExperimentalSettings(raw: unknown): InstanceExperimentalSettings {
+  const parsed = instanceExperimentalSettingsStorageSchema.safeParse(raw ?? {});
+  if (parsed.success) {
+    return {
+      // Everything-on by default: features are visible and usable out of the
+      // box; the experimental settings page still lets operators turn any of
+      // them off explicitly.
+      enableEnvironments: parsed.data.enableEnvironments ?? true,
+      enableIsolatedWorkspaces: parsed.data.enableIsolatedWorkspaces ?? true,
+      enableStreamlinedLeftNavigation: parsed.data.enableStreamlinedLeftNavigation ?? true,
+      enableConferenceRoomChat: parsed.data.enableConferenceRoomChat ?? true,
+      enableIssuePlanDecompositions: parsed.data.enableIssuePlanDecompositions ?? true,
+      enableExperimentalFileViewer: parsed.data.enableExperimentalFileViewer ?? true,
+      enableTaskWatchdogs: parsed.data.enableTaskWatchdogs ?? true,
+      enableCloudSync: parsed.data.enableCloudSync ?? true,
+      enableExternalObjects: parsed.data.enableExternalObjects ?? true,
+      autoRestartDevServerWhenIdle: parsed.data.autoRestartDevServerWhenIdle ?? true,
+      enableIssueGraphLivenessAutoRecovery: parsed.data.enableIssueGraphLivenessAutoRecovery ?? true,
+      issueGraphLivenessAutoRecoveryLookbackHours:
+        parsed.data.issueGraphLivenessAutoRecoveryLookbackHours ??
+        DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
+    };
+  }
+  return {
+    enableEnvironments: true,
+    enableIsolatedWorkspaces: true,
+    enableStreamlinedLeftNavigation: true,
+    enableConferenceRoomChat: true,
+    enableTaskWatchdogs: true,
+    enableIssuePlanDecompositions: true,
+    enableExperimentalFileViewer: true,
+    enableCloudSync: true,
+    enableExternalObjects: true,
+    autoRestartDevServerWhenIdle: true,
+    enableIssueGraphLivenessAutoRecovery: true,
+    issueGraphLivenessAutoRecoveryLookbackHours:
+      DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
+  };
+}
+
+function toInstanceSettings(row: typeof instanceSettings.$inferSelect): InstanceSettings {
+  return {
+    id: row.id,
+    defaultEnvironmentId: row.defaultEnvironmentId ?? null,
+    general: normalizeGeneralSettings(row.general),
+    experimental: normalizeExperimentalSettings(row.experimental),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  } as InstanceSettings;
+}
+
+export function instanceSettingsService(db: Db) {
+  async function getOrCreateRow() {
+    const existing = await db
+      .select()
+      .from(instanceSettings)
+      .where(eq(instanceSettings.singletonKey, DEFAULT_SINGLETON_KEY))
+      .then((rows) => rows[0] ?? null);
+    if (existing) return existing;
+
+    const now = new Date();
+    const [created] = await db
+      .insert(instanceSettings)
+      .values({
+        singletonKey: DEFAULT_SINGLETON_KEY,
+        general: {},
+        experimental: {},
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [instanceSettings.singletonKey],
+        set: {
+          updatedAt: now,
+        },
+      })
+      .returning();
+
+    if (created) return created;
+
+    const raced = await db
+      .select()
+      .from(instanceSettings)
+      .where(eq(instanceSettings.singletonKey, DEFAULT_SINGLETON_KEY))
+      .then((rows) => rows[0] ?? null);
+    if (raced) return raced;
+
+    throw new Error("Failed to initialize instance settings row");
+  }
+
+  return {
+    get: async (): Promise<InstanceSettings> => toInstanceSettings(await getOrCreateRow()),
+
+    update: async (patch: PatchInstanceSettings): Promise<InstanceSettings> => {
+      const current = await getOrCreateRow();
+      const now = new Date();
+      const [updated] = await db
+        .update(instanceSettings)
+        .set({
+          ...(Object.prototype.hasOwnProperty.call(patch, "defaultEnvironmentId")
+            ? { defaultEnvironmentId: patch.defaultEnvironmentId ?? null }
+            : {}),
+          updatedAt: now,
+        })
+        .where(eq(instanceSettings.id, current.id))
+        .returning();
+      return toInstanceSettings(updated ?? current);
+    },
+
+    getGeneral: async (): Promise<InstanceGeneralSettings> => {
+      const row = await getOrCreateRow();
+      return normalizeGeneralSettings(row.general);
+    },
+
+    getExperimental: async (): Promise<InstanceExperimentalSettings> => {
+      const row = await getOrCreateRow();
+      return normalizeExperimentalSettings(row.experimental);
+    },
+
+    updateGeneral: async (patch: PatchInstanceGeneralSettings): Promise<InstanceSettings> => {
+      const current = await getOrCreateRow();
+      const nextGeneral = normalizeGeneralSettings({
+        ...normalizeGeneralSettings(current.general),
+        ...patch,
+      });
+      const now = new Date();
+      const [updated] = await db
+        .update(instanceSettings)
+        .set({
+          general: { ...nextGeneral },
+          updatedAt: now,
+        })
+        .where(eq(instanceSettings.id, current.id))
+        .returning();
+      return toInstanceSettings(updated ?? current);
+    },
+
+    updateExperimental: async (patch: PatchInstanceExperimentalSettings): Promise<InstanceSettings> => {
+      const current = await getOrCreateRow();
+      const nextExperimental = normalizeExperimentalSettings({
+        ...normalizeExperimentalSettings(current.experimental),
+        ...patch,
+      });
+      const now = new Date();
+      const [updated] = await db
+        .update(instanceSettings)
+        .set({
+          experimental: { ...nextExperimental },
+          updatedAt: now,
+        })
+        .where(eq(instanceSettings.id, current.id))
+        .returning();
+      return toInstanceSettings(updated ?? current);
+    },
+
+    listCompanyIds: async (): Promise<string[]> =>
+      db
+        .select({ id: companies.id })
+        .from(companies)
+        .then((rows) => rows.map((row) => row.id)),
+  };
+}
