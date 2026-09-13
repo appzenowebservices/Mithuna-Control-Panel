@@ -170,6 +170,14 @@ export async function createApp(
   // when the server may be reachable without a known reverse proxy in front.
   applyTrustProxy(app, parseTrustProxyEnv(process.env.TRUST_PROXY));
 
+  // Liveness probe for container orchestrators / reverse proxies (Docker
+  // healthcheck, Caddy). Mounted before auth, hostname guards, and body
+  // parsing so it answers even when the app is otherwise locked down.
+  // Intentionally static: no DB probe, no logging, no actor required.
+  app.get("/healthz", (_req, res) => {
+    res.json({ status: "ok" });
+  });
+
   app.use(COMPANY_IMPORT_API_PATH, express.json({
     limit: PORTABLE_JSON_BODY_LIMIT,
     verify: captureRawBody,

@@ -1,0 +1,46 @@
+# Agent panel for agent-panel.appzenowebservices.com
+# Caddy (already configured) routes the domain here:
+#   agent-panel.appzenowebservices.com, www.agent-panel.appzenowebservices.com {
+#     reverse_proxy appzeno-agent-panel:3000
+#   }
+# Service name MUST stay `appzeno-agent-panel` so Caddy's DNS resolves.
+# No ports published: Caddy reaches it over the shared `web` network.
+#
+# This image serves the full control plane (API + board UI) via the repo
+# root Dockerfile. DATABASE_URL is intentionally unset so the server uses
+# embedded PGlite, persisted in the `panel-data` volume.
+services:
+  appzeno-agent-panel:
+    build: .
+    image: mithuna-control-panel
+    container_name: appzeno-agent-panel
+    restart: unless-stopped
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3000"
+      SERVE_UI: "true"
+      NODE_ENV: "production"
+      PAPERCLIP_HOME: "/paperclip"
+      PAPERCLIP_INSTANCE_ID: "default"
+      PAPERCLIP_CONFIG: "/paperclip/instances/default/config.json"
+      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "public"
+      PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-https://agent-panel.appzenowebservices.com}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in the environment or a .env file next to this compose file}"
+    volumes:
+      - panel-data:/paperclip
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+networks:
+  web:
+    external: true
+
+volumes:
+  panel-data:

@@ -40,6 +40,11 @@ server/check-*.mjs
 server/seed-*.mjs
 packages/db/seed-*.mjs
 
+# Scratch API exports / local diagnostics (never commit)
+*_dump.json
+ceo_issues*.json
+issue_check.json
+
 # npm publish build artifacts
 cli/package.dev.json
 
