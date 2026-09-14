@@ -8,3 +8,6 @@ coverage
 data
 tmp
 *.log
+# Never bake local secrets into images (server loads /app/.env via dotenv)
+.env*
+!.env.example

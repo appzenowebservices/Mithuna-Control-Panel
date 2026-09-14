@@ -27,6 +27,10 @@ services:
       PAPERCLIP_DEPLOYMENT_EXPOSURE: "public"
       PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-https://agent-panel.appzenowebservices.com}"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in the environment or a .env file next to this compose file}"
+      # Supabase Postgres. Explicit container env wins over any dotenv files
+      # (e.g. /paperclip/instances/default/.env in the volume), so this is
+      # the single source of truth for the database connection.
+      DATABASE_URL: "${DATABASE_URL:?Set DATABASE_URL in the environment or a .env file next to this compose file (Supabase Postgres connection string)}"
     volumes:
       - panel-data:/paperclip
     networks:
