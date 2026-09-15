@@ -60,6 +60,8 @@ export interface Config {
   authBaseUrlMode: AuthBaseUrlMode;
   authPublicBaseUrl: string | undefined;
   authDisableSignUp: boolean;
+  superadminEmail?: string | undefined;
+  superadminPassword?: string | undefined;
   databaseMode: DatabaseMode;
   databaseUrl: string | undefined;
   databaseMigrationUrl: string | undefined;
@@ -213,6 +215,15 @@ export function loadConfig(): Config {
     disableSignUpFromEnv !== undefined
       ? disableSignUpFromEnv === "true"
       : (fileConfig?.auth?.disableSignUp ?? false);
+  // Env-defined super-admin (SaaS operator). The .env credentials are the
+  // source of truth: the account is created when missing and its password
+  // is synced on every boot. Unset both to disable.
+  const superadminEmail = process.env.PAPERCLIP_SUPERADMIN_EMAIL?.trim().toLowerCase() || undefined;
+  const superadminPasswordRaw = process.env.PAPERCLIP_SUPERADMIN_PASSWORD;
+  const superadminPassword =
+    superadminPasswordRaw !== undefined && superadminPasswordRaw.length > 0
+      ? superadminPasswordRaw
+      : undefined;
   const allowedHostnamesFromEnvRaw = process.env.PAPERCLIP_ALLOWED_HOSTNAMES;
   const allowedHostnamesFromEnv = allowedHostnamesFromEnvRaw
     ? allowedHostnamesFromEnvRaw
@@ -296,6 +307,8 @@ export function loadConfig(): Config {
     authBaseUrlMode,
     authPublicBaseUrl,
     authDisableSignUp,
+    superadminEmail,
+    superadminPassword,
     databaseMode: fileDatabaseMode,
     databaseUrl: process.env.DATABASE_URL ?? fileDbUrl,
     databaseMigrationUrl: process.env.DATABASE_MIGRATION_URL,

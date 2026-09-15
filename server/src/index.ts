@@ -566,6 +566,37 @@ export async function startServer(): Promise<StartedServer> {
     resolveSession = (req) => resolveBetterAuthSession(auth, req);
     resolveSessionFromHeaders = (headers) => resolveBetterAuthSessionFromHeaders(auth, headers);
     await initializeBoardClaimChallenge(db as any, { deploymentMode: config.deploymentMode });
+    // Env-defined super-admin (SaaS operator login). No-op unless
+    // PAPERCLIP_SUPERADMIN_EMAIL/PASSWORD are set; never blocks startup.
+    if (config.superadminEmail || config.superadminPassword) {
+      try {
+        const { ensureEnvSuperadmin } = await import("./services/env-superadmin.js");
+        const { hashPassword } = await import("better-auth/crypto");
+        const superadmin = await ensureEnvSuperadmin(db as any, {
+          email: config.superadminEmail,
+          password: config.superadminPassword,
+          hashPassword,
+        });
+        if (superadmin.enabled) {
+          logger.info(
+            {
+              userId: superadmin.userId,
+              createdUser: superadmin.createdUser,
+              adminGranted: superadmin.adminGranted,
+              companiesGranted: superadmin.companiesGranted,
+            },
+            "Env super-admin ensured (PAPERCLIP_SUPERADMIN_EMAIL)",
+          );
+        } else {
+          logger.error(
+            { message: superadmin.message },
+            "Invalid super-admin env config; skipping env super-admin",
+          );
+        }
+      } catch (err) {
+        logger.error({ err }, "Failed to ensure env super-admin; continuing startup");
+      }
+    }
     authReady = true;
   }
 
