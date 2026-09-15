@@ -7,14 +7,21 @@
 # No ports published: Caddy reaches it over the shared `web` network.
 #
 # This image serves the full control plane (API + board UI) via the repo
-# root Dockerfile. DATABASE_URL is intentionally unset so the server uses
-# embedded PGlite, persisted in the `panel-data` volume.
+# root Dockerfile. The database is Supabase Postgres (pooler URL in `.env`
+# as DATABASE_URL); the `panel-data` volume persists instance state
+# (config, storage, backups) under /paperclip.
 services:
   appzeno-agent-panel:
     build: .
     image: mithuna-control-panel
     container_name: appzeno-agent-panel
     restart: unless-stopped
+    # Super-admin config lives in ONE place: the `.env` file next to this
+    # compose file (copy `.env.example` to `.env` and fill it in). Every
+    # KEY=VALUE there lands in the container; the explicit `environment:`
+    # entries below still win on conflicts and fail fast when required.
+    env_file:
+      - .env
     environment:
       HOST: "0.0.0.0"
       PORT: "3000"
