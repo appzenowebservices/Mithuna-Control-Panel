@@ -25,12 +25,21 @@ const EXCLUDED_DIRS = new Set([
   ".pytest_cache",
 ]);
 const EXCLUDED_EXTENSIONS = new Set([".pyc", ".pyo"]);
+// Hermes runtime state, not skill content.
+const EXCLUDED_FILES = new Set([
+  ".DS_Store",
+  "Thumbs.db",
+  ".bundled_manifest",
+  ".curator_state",
+  ".usage.json",
+  ".usage.json.lock",
+]);
 
 function shouldCopy(source) {
   const base = path.basename(source);
   if (EXCLUDED_DIRS.has(base)) return false;
+  if (EXCLUDED_FILES.has(base)) return false;
   if (EXCLUDED_EXTENSIONS.has(path.extname(base).toLowerCase())) return false;
-  if (base === ".DS_Store" || base === "Thumbs.db") return false;
   return true;
 }
 

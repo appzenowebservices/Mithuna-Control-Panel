@@ -1,0 +1,35 @@
+{
+  "name": "<AgentName>",
+  "role": "<role>",
+  "title": "<Human Title>",
+  "icon": "gem",
+  "reportsTo": "<manager-agent-id>",
+  "capabilities": "One concrete sentence about what the agent owns end-to-end.",
+  "desiredSkills": ["paperclipai/paperclip/<slug>"],
+  "adapterType": "hermes_http",
+  "adapterConfig": {
+    "apiUrl": "http://localhost:3100",
+    "command": "",
+    "instructionsFilePath": "",
+    "paperclipSkillSync": {
+      "desiredSkills": ["paperclipai/paperclip/<slug>"]
+    },
+    "toolsets": ["vision", "image_gen", "browser"]
+  },
+  "instructionsBundle": {
+    "entryFile": "AGENTS.md",
+    "files": {
+      "AGENTS.md": "<full adapted AGENTS.md text; see paperclip-create-agent references/agents/ templates>"
+    }
+  },
+  "runtimeConfig": {
+    "heartbeat": {
+      "enabled": false,
+      "wakeOnDemand": true,
+      "maxConcurrentRuns": 20
+    }
+  },
+  "budgetMonthlyCents": 0,
+  "sourceIssueId": "<issue-uuid>",
+  "sourceIssueIds": ["<issue-uuid>"]
+}
