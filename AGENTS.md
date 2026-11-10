@@ -197,14 +197,17 @@ This is a fork of `paperclipai/paperclip` with QoL patches and an **external-onl
 
 ### Bundled Skills Roots
 
-`resolveBundledSkillsRoot()` in `server/src/services/company-skills.ts` scans these roots (in order) and unions their `SKILL.md` libraries into the company skill catalog, keeping the **last** root's entry when keys collide:
+`resolveBundledSkillsRoot()` in `server/src/services/skills-roots.ts` scans these roots (in order) and unions their `SKILL.md` libraries into the company skill catalog, keeping the **last** root's entry when keys collide:
 
-1. `<repo>/skills` (moduleDir-relative)
+1. `<repo>/server/skills` (moduleDir-relative legacy in-package root)
 2. `<cwd>/skills`
-3. `<repo>/../skills` (parent-level `skills/`)
-4. `<repo>/../../hermes-agent/skills` (sibling Hermes agent skill library — kept last so hermes wins collisions)
+3. `<repo>/skills` (always-present baseline, 15 skills)
+4. `<repo>/hermes-optional-skills` (vendored Hermes optional library, 101 skills)
+5. `<repo>/hermes-skills` (vendored Hermes core library, 93 skills)
+6. `<repo>/../../hermes-agent/skills` (legacy sibling checkout from the pre-split monorepo)
+7. `PAPERCLIP_SKILLS_ROOTS` entries, `;`- or `:`-separated (operator overrides / bind mounts — kept last so they win collisions)
 
-The Hermes library at `hermes-agent/skills` is a nested `category/skill/SKILL.md` tree; `walkLocalFiles` recurses it (skipping `.git`, `node_modules`, `index-cache`). A `hermes-agent/skills` entry that shares a slug with a `paperclip/skills` entry is synced as the canonical `paperclipai/paperclip/<slug>` key pointing at the hermes source. Hermes runtime skills live in `~/.hermes/skills/` and are flat-symlinked by the `hermes_http` adapter (one symlink per desired skill).
+The vendored Hermes libraries are nested `category/skill/SKILL.md` trees; `walkLocalFiles` recurses them (skipping `.git`, `node_modules`, `index-cache`). A Hermes entry that shares a slug with a `paperclip/skills` entry is synced as the canonical `paperclipai/paperclip/<slug>` key pointing at the Hermes source. Hermes runtime skills live in `~/.hermes/skills/` and are flat-symlinked by the `hermes_http` adapter (one symlink per desired skill). Refresh the vendored snapshots with `node scripts/sync-hermes-skills.mjs`; see `doc/vendored-hermes-skills.md`.
 
 ### Skill Contracts (metadata.hermes.contract)
 

@@ -1,7 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import { companies, companySkillComments, companySkillStars, companySkillVersions, companySkills, teamSkills } from "@paperclipai/db";
@@ -63,6 +62,7 @@ import {
   readCatalogStringList,
   readPortableCatalogProvenance,
 } from "./catalog-provenance.js";
+import { resolveBundledSkillsRoot } from "./skills-roots.js";
 
 type CompanySkillRow = typeof companySkills.$inferSelect;
 type CompanySkillVersionRow = typeof companySkillVersions.$inferSelect;
@@ -731,18 +731,6 @@ export function parseSkillImportSourceInput(rawInput: string): ParsedSkillImport
     originalSkillsShUrl: null,
     warnings,
   };
-}
-
-function resolveBundledSkillsRoot() {
-  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  return [
-    path.resolve(moduleDir, "../../skills"),
-    path.resolve(process.cwd(), "skills"),
-    path.resolve(moduleDir, "../../../skills"),
-    // Hermes agent skill library (local fork, sibling repo at <parent>/hermes-agent)
-    // — kept last so its entries win key collisions against the roots above.
-    path.resolve(moduleDir, "../../../../hermes-agent/skills"),
-  ];
 }
 
 function matchesRequestedSkill(relativeSkillPath: string, requestedSkillSlug: string | null) {
