@@ -39,6 +39,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { cn, SIDEBAR_RAIL_HIDDEN_LABEL } from "@/lib/utils";
 import { useSidebar } from "../context/SidebarContext";
 import { CompanyPatternIcon } from "./CompanyPatternIcon";
+import { SignOutConfirmDialog } from "./SignOutConfirmDialog";
 
 interface SidebarCompanyMenuProps {
   open?: boolean;
@@ -131,6 +132,7 @@ function SortableCompanyItem({
 export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompanyMenuProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const queryClient = useQueryClient();
   const { companies, selectedCompany, setSelectedCompanyId } = useCompany();
   const { openOnboarding } = useDialogActions();
@@ -166,6 +168,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
     onSuccess: async () => {
+      setSignOutOpen(false);
       setOpen(false);
       if (isMobile) setSidebarOpen(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
@@ -221,7 +224,8 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
   );
 
   return (
-    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+    <>
+      <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -331,15 +335,25 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => signOutMutation.mutate()}
-              disabled={isEditingOrder || signOutMutation.isPending}
+              onClick={() => {
+                setOpen(false);
+                setSignOutOpen(true);
+              }}
+              disabled={isEditingOrder}
             >
               <LogOut className="size-4" />
-              <span>{signOutMutation.isPending ? "Signing out..." : "Sign out"}</span>
+              <span>Sign out</span>
             </DropdownMenuItem>
           </>
         ) : null}
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+      <SignOutConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={() => signOutMutation.mutate()}
+        pending={signOutMutation.isPending}
+      />
+    </>
   );
 }

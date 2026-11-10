@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { SignOutConfirmDialog } from "@/components/SignOutConfirmDialog";import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -274,6 +274,34 @@ function Swatch({ name, cssVar }: { name: string; cssVar: string }) {
         <p className="text-xs font-mono">{cssVar}</p>
         <p className="text-xs text-muted-foreground">{name}</p>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sign-out confirmation demo                                         */
+/* ------------------------------------------------------------------ */
+
+function SignOutDialogDemo() {
+  const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        Open sign-out dialog
+      </Button>
+      <SignOutConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        pending={pending}
+        onConfirm={() => {
+          setPending(true);
+          window.setTimeout(() => {
+            setPending(false);
+            setOpen(false);
+          }, 900);
+        }}
+      />
     </div>
   );
 }
@@ -1266,6 +1294,15 @@ export function DesignGuide() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      </Section>
+
+      {/* ============================================================ */}
+      {/*  SIGN-OUT CONFIRMATION                                        */}
+      {/* ============================================================ */}
+      <Section title="Sign-out confirmation">
+        <SubSection title="Destructive confirm with pending state">
+          <SignOutDialogDemo />
+        </SubSection>
       </Section>
 
       {/* ============================================================ */}

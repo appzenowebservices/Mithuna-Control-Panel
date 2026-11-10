@@ -16,6 +16,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn, SIDEBAR_RAIL_HIDDEN_LABEL } from "../lib/utils";
+import { SignOutConfirmDialog } from "./SignOutConfirmDialog";
 import { ThemeToggle } from "./ThemeToggle";
 
 const PROFILE_SETTINGS_PATH = "/company/settings/instance/profile";
@@ -106,6 +107,7 @@ export function SidebarAccountMenu({
   version,
 }: SidebarAccountMenuProps) {
   const [internalOpen, setInternalOpen] = useState(false);
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const queryClient = useQueryClient();
   const { isMobile, setSidebarOpen, collapsed, peeking } = useSidebar();
   const rail = collapsed && !peeking;
@@ -120,6 +122,7 @@ export function SidebarAccountMenu({
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
     onSuccess: async () => {
+      setSignOutOpen(false);
       setOpen(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
     },
@@ -217,19 +220,18 @@ export function SidebarAccountMenu({
               {deploymentMode === "authenticated" ? (
                 <button
                   type="button"
-                  className={cn(
-                    "flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-destructive/10",
-                    signOutMutation.isPending && "cursor-not-allowed opacity-60",
-                  )}
-                  onClick={() => signOutMutation.mutate()}
-                  disabled={signOutMutation.isPending}
+                  className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-destructive/10"
+                  onClick={() => {
+                    setOpen(false);
+                    setSignOutOpen(true);
+                  }}
                 >
                   <span className="mt-0.5 rounded-lg border border-border bg-background/70 p-2 text-muted-foreground">
                     <LogOut className="size-4" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium text-foreground">
-                      {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+                      Sign out
                     </span>
                     <span className="block text-xs text-muted-foreground">
                       End this browser session.
@@ -241,6 +243,12 @@ export function SidebarAccountMenu({
           </div>
         </PopoverContent>
       </Popover>
+      <SignOutConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={() => signOutMutation.mutate()}
+        pending={signOutMutation.isPending}
+      />
     </div>
   );
 }

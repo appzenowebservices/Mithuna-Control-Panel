@@ -137,4 +137,53 @@ describe("SidebarAccountMenu", () => {
       root.unmount();
     });
   });
+
+  it("asks for confirmation before signing out", async () => {
+    mockAuthApi.signOut.mockResolvedValue(undefined);
+    const root = createRoot(container);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <SidebarAccountMenu deploymentMode="authenticated" />
+        </QueryClientProvider>,
+      );
+    });
+    await flushReact();
+    await flushReact();
+
+    const trigger = container.querySelector('button[aria-label="Open account menu"]');
+    await act(async () => {
+      trigger?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await flushReact();
+
+    const signOutButton = Array.from(document.body.querySelectorAll("button"))
+      .find((element) => element.textContent?.includes("End this browser session."));
+    expect(signOutButton).toBeTruthy();
+
+    await act(async () => {
+      signOutButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await flushReact();
+
+    expect(mockAuthApi.signOut).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain("Sign out of your account?");
+
+    const confirmButton = document.body.querySelector('[data-slot="alert-dialog-action"]');
+    expect(confirmButton).toBeTruthy();
+    await act(async () => {
+      confirmButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await flushReact();
+
+    expect(mockAuthApi.signOut).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
 });

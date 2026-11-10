@@ -217,6 +217,18 @@ describe("SidebarCompanyMenu", () => {
     });
     await flushReact();
 
+    // Sign out is gated behind a confirmation dialog.
+    expect(mockAuthApi.signOut).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain("Sign out of your account?");
+    expect(document.body.textContent).toContain("Stay signed in");
+
+    const confirmButton = document.body.querySelector('[data-slot="alert-dialog-action"]');
+    expect(confirmButton).toBeTruthy();
+    act(() => {
+      confirmButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await flushReact();
+
     expect(mockAuthApi.signOut).toHaveBeenCalledTimes(1);
 
     act(() => {
