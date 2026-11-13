@@ -86,12 +86,13 @@ The current issue model includes stable issue identifiers, parent/sub-issues, bl
 
 ## Guidelines
 
-There are two runtime modes Paperclip must support:
+Paperclip requires account sign-in for all human browser access, whether the
+instance is local, private-network, or publicly hosted:
 
-- `local_trusted` (default): single-user local trusted deployment with no login friction
-- `authenticated`: login-required mode that supports both private-network and public deployment exposure policies
+- `private`: local, LAN, VPN, or tailnet deployment
+- `public`: internet-facing/cloud deployment
 
-Canonical mode design and command expectations live in `doc/DEPLOYMENT-MODES.md`.
+Canonical deployment and auth behavior lives in `doc/DEPLOYMENT-MODES.md`.
 
 ## Further Detail
 

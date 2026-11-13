@@ -503,7 +503,7 @@ export function Layout() {
           >
             <div className="flex flex-1 min-h-0 overflow-hidden">
               <div className="w-60 shrink-0 overflow-hidden">
-                {hasSecondarySidebar ? secondarySidebar : <Sidebar />}
+                {hasSecondarySidebar ? secondarySidebar : <Sidebar deploymentMode={health?.deploymentMode} />}
               </div>
             </div>
             <SidebarAccountMenu
@@ -523,7 +523,7 @@ export function Layout() {
             onPanelBlurCapture={collapsed ? handlePanelBlur : undefined}
           >
             <div className="flex flex-1 min-h-0">
-              <Sidebar />
+              <Sidebar deploymentMode={health?.deploymentMode} />
             </div>
             <SidebarAccountMenu
               deploymentMode={health?.deploymentMode}

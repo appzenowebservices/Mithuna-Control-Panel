@@ -335,7 +335,7 @@ function HistoricalPreviewBanner({
     <div className="rounded-2xl border-2 border-amber-500/40 bg-amber-100 px-4 py-3.5 shadow-md content-dark:bg-amber-500/15">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-black tracking-tight text-amber-800 content-dark:text-amber-700">
+          <p className="text-sm font-black tracking-tight text-amber-800 content-dark:text-amber-300">
             Viewing revision {revisionNumber} (read-only)
           </p>
           <p className="text-xs font-semibold text-muted-foreground">
@@ -374,7 +374,7 @@ function ConflictBanner({
     <div className="rounded-2xl border-2 border-amber-500/40 bg-amber-100 px-4 py-3.5 shadow-md content-dark:bg-amber-500/15">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-black tracking-tight text-amber-800 content-dark:text-amber-700">Unsaved routine edits</p>
+          <p className="text-sm font-black tracking-tight text-amber-800 content-dark:text-amber-300">Unsaved routine edits</p>
           <p className="text-xs font-semibold text-muted-foreground">
             You changed {fieldsText} but haven&apos;t saved yet. Save or discard before previewing or
             restoring an older revision.
@@ -462,12 +462,12 @@ function RevisionList({
             <div className="flex items-center gap-2 text-sm font-black tracking-tight text-foreground">
               <span>rev {revision.revisionNumber}</span>
               {isCurrent && (
-                <span className="inline-flex items-center rounded-xl border border-emerald-500/40 bg-emerald-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-700">
+                <span className="inline-flex items-center rounded-xl border border-emerald-500/40 bg-emerald-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-300">
                   Current
                 </span>
               )}
               {revision.restoredFromRevisionId && (
-                <span className="inline-flex items-center rounded-xl border border-amber-500/40 bg-amber-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-amber-700 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+                <span className="inline-flex items-center rounded-xl border border-amber-500/40 bg-amber-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-amber-700 content-dark:bg-amber-500/15 content-dark:text-amber-300">
                   Restored
                 </span>
               )}
@@ -613,7 +613,7 @@ function RevisionPreview({
               <p className="text-sm font-semibold text-foreground">
                 {row.value || <span className="text-muted-foreground">—</span>}
                 {row.differs && (
-                  <span className="ml-2 inline-flex items-center rounded-xl border border-amber-500/40 bg-amber-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-amber-700 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+                  <span className="ml-2 inline-flex items-center rounded-xl border border-amber-500/40 bg-amber-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-amber-700 content-dark:bg-amber-500/15 content-dark:text-amber-300">
                     differs from current
                   </span>
                 )}
@@ -654,7 +654,7 @@ function RevisionPreview({
                   {summarizeTriggerSnapshot(trigger)}
                 </span>
                 <span
-                  className={`ml-auto text-[10px] font-black uppercase tracking-widest ${trigger.enabled ? "text-emerald-700 content-dark:text-emerald-700" : "text-muted-foreground"}`}
+                  className={`ml-auto text-[10px] font-black uppercase tracking-widest ${trigger.enabled ? "text-emerald-700 content-dark:text-emerald-300" : "text-muted-foreground"}`}
                 >
                   {trigger.enabled ? "enabled" : "disabled"}
                 </span>

@@ -514,9 +514,9 @@ function IssueAssigneePausedNotice({ agent }: { agent: Agent | null }) {
         : "It was paused manually.";
 
   return (
-    <div className="mb-3 rounded-md border border-orange-300/70 bg-orange-50/90 px-3 py-2.5 text-sm text-orange-950 shadow-sm dark:border-orange-500/40 dark:bg-orange-500/10 content-dark:text-orange-700">
+    <div className="mb-3 rounded-md border border-orange-300/70 bg-orange-50/90 px-3 py-2.5 text-sm text-orange-950 shadow-sm dark:border-orange-500/40 dark:bg-orange-500/10 content-dark:text-orange-300">
       <div className="flex items-start gap-2">
-        <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 content-dark:text-orange-700" />
+        <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 content-dark:text-orange-300" />
         <p className="min-w-0 leading-5">
           <span className="font-medium">{agent.name}</span> is paused. New runs will not start until the agent is resumed. {pauseDetail}
         </p>
@@ -569,7 +569,7 @@ function IssueChatFallbackThread({
 }) {
   return (
     <div className={cn(variant === "embedded" ? "space-y-3" : "space-y-4")}>
-      <div className="rounded-xl border border-amber-300/60 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+      <div className="rounded-xl border border-amber-300/60 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 content-dark:bg-amber-500/15 content-dark:text-amber-300">
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
@@ -748,8 +748,8 @@ export function SuccessfulRunHandoffCommentCallout({
       className={cn(
         "rounded-md border px-3 py-2.5 text-sm shadow-sm",
         escalated
-          ? "border-red-500/35 bg-red-500/10 text-red-950 content-dark:text-red-700"
-          : "border-amber-300/70 bg-amber-50/90 text-amber-950 dark:border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700",
+          ? "border-red-500/35 bg-red-500/10 text-red-950 content-dark:text-red-300"
+          : "border-amber-300/70 bg-amber-50/90 text-amber-950 dark:border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300",
       )}
       style={recessed ? { opacity: 0.55 } : undefined}
     >
@@ -757,7 +757,7 @@ export function SuccessfulRunHandoffCommentCallout({
         <AlertTriangle
           className={cn(
             "mt-1 h-4 w-4 shrink-0",
-            escalated ? "text-red-600 content-dark:text-red-700" : "text-amber-600 content-dark:text-amber-700",
+            escalated ? "text-red-600 content-dark:text-red-300" : "text-amber-600 content-dark:text-amber-300",
           )}
         />
         <MarkdownBody className="min-w-0 text-sm leading-6" softBreaks onImageClick={onImageClick}>
@@ -1412,14 +1412,14 @@ function IssueChatUserMessage({
       >
         {queued ? (
           <div className="mb-1.5 flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-100/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-amber-800 dark:border-amber-400/40 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+            <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-100/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-amber-800 dark:border-amber-400/40 content-dark:bg-amber-500/15 content-dark:text-amber-300">
               {queueBadgeLabel}
             </span>
             {queueTargetRunId && onInterruptQueued ? (
               <Button
                 size="sm"
                 variant="outline"
-                className="h-6 border-red-300 px-2 text-[11px] text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-500/40 content-dark:text-red-700 dark:hover:bg-red-500/10"
+                className="h-6 border-red-300 px-2 text-[11px] text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-500/40 content-dark:text-red-300 dark:hover:bg-red-500/10"
                 disabled={isInterruptingQueuedRun}
                 onClick={() => void onInterruptQueued(queueTargetRunId)}
               >
@@ -1430,7 +1430,7 @@ function IssueChatUserMessage({
               <Button
                 size="sm"
                 variant="outline"
-                className="h-6 border-amber-300 px-2 text-[11px] text-amber-900 hover:bg-amber-100/80 hover:text-amber-950 dark:border-amber-500/40 content-dark:text-amber-700 dark:hover:bg-amber-500/10"
+                className="h-6 border-amber-300 px-2 text-[11px] text-amber-900 hover:bg-amber-100/80 hover:text-amber-950 dark:border-amber-500/40 content-dark:text-amber-300 dark:hover:bg-amber-500/10"
                 onClick={() => onCancelQueued(commentId)}
               >
                 Cancel
@@ -1731,8 +1731,8 @@ function IssueChatAssistantMessage({
               disabled={isStoppingRun}
               className={cn(
                 stopRunVariant === "pause"
-                  ? "text-amber-700 focus:text-amber-800 content-dark:text-amber-700 dark:focus:text-amber-200"
-                  : "text-red-700 focus:text-red-800 content-dark:text-red-700 dark:focus:text-red-200",
+                  ? "text-amber-700 focus:text-amber-800 content-dark:text-amber-300 dark:focus:text-amber-200"
+                  : "text-red-700 focus:text-red-800 content-dark:text-red-300 dark:focus:text-red-200",
               )}
               onSelect={() => {
                 void onStopRun(runId);
@@ -1854,7 +1854,7 @@ function IssueChatAssistantMessage({
                 </Badge>
               ) : null}
               {isRunning ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-cyan-700 content-dark:text-cyan-700">
+                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-cyan-700 content-dark:text-cyan-300">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Running
                 </span>
@@ -2002,7 +2002,7 @@ function IssueChatFeedbackButtons({
         className={cn(
           "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
           visibleVote === "up"
-            ? "text-green-600 content-dark:text-green-700"
+            ? "text-green-600 content-dark:text-green-300"
             : "text-muted-foreground hover:bg-accent hover:text-foreground",
         )}
         title="Helpful"
@@ -2019,7 +2019,7 @@ function IssueChatFeedbackButtons({
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
               visibleVote === "down"
-                ? "text-amber-600 content-dark:text-amber-700"
+                ? "text-amber-600 content-dark:text-amber-300"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
             title="Needs work"
@@ -3790,7 +3790,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
 
   if (composerDisabledReason) {
     return (
-      <div className="rounded-md border border-amber-300/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+      <div className="rounded-md border border-amber-300/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300">
         {composerDisabledReason}
       </div>
     );
@@ -3905,7 +3905,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
                 {attachment.status === "uploading" ? (
                   <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
                 ) : attachment.status === "attached" ? (
-                  <Check className="h-3.5 w-3.5 shrink-0 text-green-600 content-dark:text-green-700" />
+                  <Check className="h-3.5 w-3.5 shrink-0 text-green-600 content-dark:text-green-300" />
                 ) : (
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                 )}

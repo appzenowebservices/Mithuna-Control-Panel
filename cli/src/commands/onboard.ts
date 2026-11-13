@@ -5,7 +5,6 @@ import {
   AUTH_BASE_URL_MODES,
   BIND_MODES,
   DEPLOYMENT_EXPOSURES,
-  DEPLOYMENT_MODES,
   SECRET_PROVIDERS,
   STORAGE_PROVIDERS,
   inferBindModeFromHost,
@@ -13,7 +12,6 @@ import {
   type BindMode,
   type AuthBaseUrlMode,
   type DeploymentExposure,
-  type DeploymentMode,
   type SecretProvider,
   type StorageProvider,
 } from "@paperclipai/shared";
@@ -127,17 +125,17 @@ function describeServerBinding(server: Pick<PaperclipConfig["server"], "bind" | 
   return `${bind}${detail ? ` (${detail})` : ""}:${server.port}`;
 }
 
-function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
+function quickstartDefaultsFromEnv(opts?: { preferLoopbackDefault?: boolean }): {
   defaults: OnboardDefaults;
   usedEnvKeys: string[];
   ignoredEnvKeys: Array<{ key: string; reason: string }>;
 } {
-  const preferTrustedLocal = opts?.preferTrustedLocal ?? false;
+  const preferLoopbackDefault = opts?.preferLoopbackDefault ?? false;
   const instanceId = resolvePaperclipInstanceId();
   const defaultStorage = defaultStorageConfig();
   const defaultSecrets = defaultSecretsConfig();
   const databaseUrl = process.env.DATABASE_URL?.trim() || undefined;
-  const publicUrl = preferTrustedLocal
+  const publicUrl = preferLoopbackDefault
     ? undefined
     : (
       process.env.PAPERCLIP_PUBLIC_URL?.trim() ||
@@ -146,26 +144,19 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
       process.env.BETTER_AUTH_BASE_URL?.trim() ||
       undefined
     );
-  const deploymentMode = preferTrustedLocal
-    ? "local_trusted"
-    : (parseEnumFromEnv<DeploymentMode>(process.env.PAPERCLIP_DEPLOYMENT_MODE, DEPLOYMENT_MODES) ?? "local_trusted");
+  const deploymentMode = "authenticated" as const;
   const deploymentExposureFromEnv = parseEnumFromEnv<DeploymentExposure>(
     process.env.PAPERCLIP_DEPLOYMENT_EXPOSURE,
     DEPLOYMENT_EXPOSURES,
   );
-  const deploymentExposure =
-    deploymentMode === "local_trusted" ? "private" : (deploymentExposureFromEnv ?? "private");
+  const deploymentExposure = preferLoopbackDefault ? "private" : (deploymentExposureFromEnv ?? "private");
   const bindFromEnv = parseEnumFromEnv<BindMode>(process.env.PAPERCLIP_BIND, BIND_MODES);
   const customBindHostFromEnv = process.env.PAPERCLIP_BIND_HOST?.trim() || undefined;
   const hostFromEnv = process.env.HOST?.trim() || undefined;
   const configuredBindHost = customBindHostFromEnv ?? hostFromEnv;
-  const bind = preferTrustedLocal
+  const bind = preferLoopbackDefault
     ? "loopback"
-    : (
-      deploymentMode === "local_trusted"
-        ? "loopback"
-        : (bindFromEnv ?? (configuredBindHost ? inferBindModeFromHost(configuredBindHost) : "lan"))
-    );
+    : (bindFromEnv ?? (configuredBindHost ? inferBindModeFromHost(configuredBindHost) : "loopback"));
   const resolvedBind = resolveRuntimeBind({
     bind,
     host: hostFromEnv ?? (bind === "loopback" ? "127.0.0.1" : "0.0.0.0"),
@@ -177,7 +168,9 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
     process.env.PAPERCLIP_AUTH_BASE_URL_MODE,
     AUTH_BASE_URL_MODES,
   );
-  const authBaseUrlMode = authBaseUrlModeFromEnv ?? (authPublicBaseUrl ? "explicit" : "auto");
+  const authBaseUrlMode = preferLoopbackDefault
+    ? "auto"
+    : (authBaseUrlModeFromEnv ?? (authPublicBaseUrl ? "explicit" : "auto"));
   const allowedHostnamesFromEnv = process.env.PAPERCLIP_ALLOWED_HOSTNAMES
     ? process.env.PAPERCLIP_ALLOWED_HOSTNAMES
       .split(",")
@@ -267,10 +260,9 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
     },
   };
   const ignoredEnvKeys: Array<{ key: string; reason: string }> = [];
-  if (preferTrustedLocal) {
-    const forcedLocalReason = "Ignored because --yes quickstart forces trusted local loopback defaults";
+  if (preferLoopbackDefault) {
+    const reason = "Ignored because --yes quickstart defaults to local loopback; sign-in is still required";
     for (const key of [
-      "PAPERCLIP_DEPLOYMENT_MODE",
       "PAPERCLIP_DEPLOYMENT_EXPOSURE",
       "PAPERCLIP_BIND",
       "PAPERCLIP_BIND_HOST",
@@ -281,33 +273,13 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
       "BETTER_AUTH_URL",
       "BETTER_AUTH_BASE_URL",
     ] as const) {
-      if (process.env[key] !== undefined) {
-        ignoredEnvKeys.push({ key, reason: forcedLocalReason });
-      }
+      if (process.env[key] !== undefined) ignoredEnvKeys.push({ key, reason });
     }
   }
-  if (deploymentMode === "local_trusted" && process.env.PAPERCLIP_DEPLOYMENT_EXPOSURE !== undefined) {
+  if (process.env.PAPERCLIP_DEPLOYMENT_MODE === "local_trusted") {
     ignoredEnvKeys.push({
-      key: "PAPERCLIP_DEPLOYMENT_EXPOSURE",
-      reason: "Ignored because deployment mode local_trusted always forces private exposure",
-    });
-  }
-  if (deploymentMode === "local_trusted" && process.env.PAPERCLIP_BIND !== undefined) {
-    ignoredEnvKeys.push({
-      key: "PAPERCLIP_BIND",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
-    });
-  }
-  if (deploymentMode === "local_trusted" && process.env.PAPERCLIP_BIND_HOST !== undefined) {
-    ignoredEnvKeys.push({
-      key: "PAPERCLIP_BIND_HOST",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
-    });
-  }
-  if (deploymentMode === "local_trusted" && process.env.HOST !== undefined) {
-    ignoredEnvKeys.push({
-      key: "HOST",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
+      key: "PAPERCLIP_DEPLOYMENT_MODE",
+      reason: "Human authentication is always enabled",
     });
   }
 
@@ -460,7 +432,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
 
   let llm: PaperclipConfig["llm"] | undefined;
   const { defaults: derivedDefaults, usedEnvKeys, ignoredEnvKeys } = quickstartDefaultsFromEnv({
-    preferTrustedLocal: opts.yes === true && !opts.bind,
+    preferLoopbackDefault: opts.yes === true && !opts.bind,
   });
   let {
     database,

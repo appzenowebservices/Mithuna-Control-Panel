@@ -30,7 +30,7 @@ export function SignOutConfirmDialog({
   onOpenChange,
   onConfirm,
   pending = false,
-  error = null,
+  error,
 }: SignOutConfirmDialogProps) {
   return (
     <AlertDialog

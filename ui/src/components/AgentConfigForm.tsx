@@ -935,7 +935,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                     }}
                   />
                 </Field>
-                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-700">
+                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-300">
                   Prompt template is replayed on every heartbeat. Keep it compact and dynamic to avoid recurring token cost and cache churn.
                 </div>
               </div>
@@ -970,7 +970,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                   {kubernetesEnvironment.name} · Kubernetes sandbox
                 </div>
               ) : (
-                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-700">
+                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-300">
                   This instance requires the Kubernetes sandbox, but no managed Kubernetes
                   environment is available for this company yet. Configure one before creating
                   agents; execution will not fall back to local.
@@ -1309,7 +1309,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                 {adapterType === "codex_local" &&
                   codexSearchEnabled &&
                   currentThinkingEffort === "minimal" && (
-                    <p className="text-xs font-semibold text-amber-700 content-dark:text-amber-700">
+                    <p className="text-xs font-semibold text-amber-700 content-dark:text-amber-300">
                       Codex may reject `minimal` thinking when search is enabled.
                     </p>
                   )}
@@ -1336,7 +1336,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                     }}
                   />
                 </Field>
-                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-700">
+                <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 content-dark:text-amber-300">
                   Bootstrap prompt is legacy and will be removed in a future release. Consider moving this content into the agent&apos;s prompt template or instructions file instead.
                 </div>
               </div>
@@ -1673,7 +1673,7 @@ function AdapterTypeDropdown({
 
 function ExperimentalBadge() {
   return (
-    <span className="shrink-0 rounded-xl border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-black leading-none text-amber-700 content-dark:text-amber-700">
+    <span className="shrink-0 rounded-xl border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-black leading-none text-amber-700 content-dark:text-amber-300">
       Experimental
     </span>
   );

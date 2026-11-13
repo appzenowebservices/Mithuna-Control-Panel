@@ -121,7 +121,7 @@ describe("onboard", () => {
     expect(fs.existsSync(path.join(path.dirname(fixture.configPath), ".env"))).toBe(true);
   });
 
-  it("keeps --yes onboarding on local trusted loopback defaults", async () => {
+  it("keeps --yes onboarding on authenticated loopback defaults", async () => {
     const configPath = createFreshConfigPath();
     process.env.HOST = "0.0.0.0";
     process.env.PAPERCLIP_BIND = "lan";
@@ -129,7 +129,7 @@ describe("onboard", () => {
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
     const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
-    expect(raw.server.deploymentMode).toBe("local_trusted");
+    expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");
     expect(raw.server.host).toBe("127.0.0.1");
@@ -189,12 +189,12 @@ describe("onboard", () => {
 
   it("ignores deployment env overrides during --yes quickstart", async () => {
     const configPath = createFreshConfigPath();
-    process.env.PAPERCLIP_DEPLOYMENT_MODE = "authenticated";
+    process.env.PAPERCLIP_DEPLOYMENT_MODE = "local_trusted";
 
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
     const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
-    expect(raw.server.deploymentMode).toBe("local_trusted");
+    expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");
     expect(raw.server.host).toBe("127.0.0.1");

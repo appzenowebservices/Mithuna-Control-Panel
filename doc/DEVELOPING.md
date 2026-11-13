@@ -8,7 +8,7 @@ For mode definitions and intended CLI behavior, see `doc/DEPLOYMENT-MODES.md`.
 
 Current implementation status:
 
-- canonical model: `local_trusted` and `authenticated` (with `private/public` exposure)
+- browser authentication is always enabled; private/public exposure configures network reachability
 
 ## Prerequisites
 
@@ -72,7 +72,7 @@ pnpm dev --bind lan
 ```
 
 This runs dev as `authenticated/private` with a private-network bind preset.
-On a fresh authenticated/private instance, open the app, sign in or create an
+On a fresh instance, open the app, sign in or create an
 account, and use the setup screen to claim the first instance admin from the
 browser. The CLI fallback remains:
 
@@ -668,8 +668,7 @@ PAPERCLIP_ENABLE_COMPANY_DELETION=false
 
 Default behavior:
 
-- `local_trusted`: enabled
-- `authenticated`: disabled
+- disabled unless explicitly enabled with `PAPERCLIP_ENABLE_COMPANY_DELETION=true`
 
 ## CLI Client Operations
 

@@ -149,7 +149,7 @@ describe("SidebarCompanyMenu", () => {
     act(() => {
       root.render(
         <QueryClientProvider client={queryClient}>
-          <SidebarCompanyMenu />
+          <SidebarCompanyMenu deploymentMode="local_trusted" />
         </QueryClientProvider>,
       );
     });
@@ -166,6 +166,7 @@ describe("SidebarCompanyMenu", () => {
 
     expect(document.body.textContent).toContain("Create new team...");
     expect(document.body.textContent).not.toContain("Add company...");
+    expect(document.body.textContent).not.toContain("Sign out");
 
     act(() => {
       root.unmount();
@@ -181,7 +182,7 @@ describe("SidebarCompanyMenu", () => {
     act(() => {
       root.render(
         <QueryClientProvider client={queryClient}>
-          <SidebarCompanyMenu />
+          <SidebarCompanyMenu deploymentMode="authenticated" />
         </QueryClientProvider>,
       );
     });

@@ -56,7 +56,7 @@ export function buildPresetServerConfig(
 
   return {
     server: {
-      deploymentMode: bind === "loopback" ? "local_trusted" : "authenticated",
+      deploymentMode: "authenticated",
       exposure: "private",
       bind,
       customBindHost: undefined,
@@ -87,8 +87,8 @@ export function buildCustomServerConfig(input: BaseServerInput & {
 
   return {
     server: {
-      deploymentMode: input.deploymentMode,
-      exposure: input.deploymentMode === "local_trusted" ? "private" : input.exposure,
+      deploymentMode: "authenticated",
+      exposure: input.exposure,
       bind,
       customBindHost: bind === "custom" ? normalizedHost : undefined,
       host: normalizedHost,
@@ -96,17 +96,16 @@ export function buildCustomServerConfig(input: BaseServerInput & {
       allowedHostnames: input.allowedHostnames,
       serveUi: input.serveUi,
     },
-    auth:
-      input.deploymentMode === "authenticated" && input.exposure === "public"
-        ? {
-          baseUrlMode: "explicit",
-          disableSignUp: false,
-          publicBaseUrl: input.publicBaseUrl,
-        }
-        : {
-          baseUrlMode: "auto",
-          disableSignUp: false,
-        },
+    auth: input.exposure === "public"
+      ? {
+        baseUrlMode: "explicit",
+        disableSignUp: false,
+        publicBaseUrl: input.publicBaseUrl,
+      }
+      : {
+        baseUrlMode: "auto",
+        disableSignUp: false,
+      },
   };
 }
 
@@ -145,7 +144,7 @@ export function resolveQuickstartServerConfig(input: {
 
   if (trimmedHost) {
     return buildCustomServerConfig({
-      deploymentMode: input.deploymentMode ?? (isLoopbackHost(trimmedHost) ? "local_trusted" : "authenticated"),
+      deploymentMode: "authenticated",
       exposure: input.exposure ?? "private",
       host: trimmedHost,
       port: input.port,
@@ -155,23 +154,15 @@ export function resolveQuickstartServerConfig(input: {
     });
   }
 
-  if (input.deploymentMode === "authenticated") {
-    if (input.exposure === "public") {
-      return buildCustomServerConfig({
-        deploymentMode: "authenticated",
-        exposure: "public",
-        host: ALL_INTERFACES_BIND_HOST,
-        port: input.port,
-        allowedHostnames: input.allowedHostnames,
-        serveUi: input.serveUi,
-        publicBaseUrl: input.publicBaseUrl,
-      });
-    }
-
-    return buildPresetServerConfig("lan", {
+  if (input.exposure === "public") {
+    return buildCustomServerConfig({
+      deploymentMode: "authenticated",
+      exposure: "public",
+      host: ALL_INTERFACES_BIND_HOST,
       port: input.port,
       allowedHostnames: input.allowedHostnames,
       serveUi: input.serveUi,
+      publicBaseUrl: input.publicBaseUrl,
     });
   }
 

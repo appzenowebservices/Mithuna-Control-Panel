@@ -25,8 +25,8 @@ export async function promptServer(opts?: {
     options: [
       {
         value: "loopback" as const,
-        label: "Trusted local",
-        hint: "Recommended for first run: localhost only, no login friction",
+        label: "Local computer",
+        hint: "Only this computer can connect; sign-in is still required",
       },
       {
         value: "lan" as const,
@@ -105,68 +105,45 @@ export async function promptServer(opts?: {
     return preset;
   }
 
-  const deploymentModeSelection = await p.select({
-    message: "Auth mode",
-    options: [
-      {
-        value: "local_trusted",
-        label: "Local trusted",
-        hint: "No login required; only safe with loopback-only or similarly trusted access",
-      },
-      {
-        value: "authenticated",
-        label: "Authenticated",
-        hint: "Login required; supports both private-network and public deployments",
-      },
-    ],
-    initialValue: currentServer?.deploymentMode ?? "authenticated",
-  });
-
-  if (p.isCancel(deploymentModeSelection)) cancelled();
-  const deploymentMode = deploymentModeSelection as ServerConfig["deploymentMode"];
+  const deploymentMode: ServerConfig["deploymentMode"] = "authenticated";
 
   let exposure: ServerConfig["exposure"] = "private";
-  if (deploymentMode === "authenticated") {
-    const exposureSelection = await p.select({
-      message: "Exposure profile",
-      options: [
-        {
-          value: "private",
-          label: "Private network",
-          hint: "Private access only, with automatic URL handling",
-        },
-        {
-          value: "public",
-          label: "Public internet",
-          hint: "Internet-facing deployment with explicit public URL requirements",
-        },
-      ],
-      initialValue: currentServer?.exposure ?? "private",
-    });
-    if (p.isCancel(exposureSelection)) cancelled();
-    exposure = exposureSelection as ServerConfig["exposure"];
-  }
+  const exposureSelection = await p.select({
+    message: "Exposure profile",
+    options: [
+      {
+        value: "private",
+        label: "Private network",
+        hint: "Private access only, with automatic URL handling",
+      },
+      {
+        value: "public",
+        label: "Public internet",
+        hint: "Internet-facing deployment with explicit public URL requirements",
+      },
+    ],
+    initialValue: currentServer?.exposure ?? "private",
+  });
+  if (p.isCancel(exposureSelection)) cancelled();
+  exposure = exposureSelection as ServerConfig["exposure"];
 
   const defaultHost =
     currentServer?.customBindHost ??
     currentServer?.host ??
-    (deploymentMode === "local_trusted" ? "127.0.0.1" : "0.0.0.0");
+    "0.0.0.0";
   const host = await p.text({
     message: "Bind host",
     defaultValue: defaultHost,
     placeholder: defaultHost,
     validate: (val) => {
       if (!val.trim()) return "Host is required";
-      if (deploymentMode === "local_trusted" && !isLoopbackHost(val.trim())) {
-        return "Local trusted mode requires a loopback host such as 127.0.0.1";
-      }
     },
   });
 
   if (p.isCancel(host)) cancelled();
 
   let allowedHostnames: string[] = [];
-  if (deploymentMode === "authenticated" && exposure === "private") {
+  if (exposure === "private") {
     const allowedHostnamesInput = await p.text({
       message: "Allowed private hostnames (comma-separated, optional)",
       defaultValue: (currentServer?.allowedHostnames ?? []).join(", "),
@@ -186,7 +163,7 @@ export async function promptServer(opts?: {
   }
 
   let publicBaseUrl: string | undefined;
-  if (deploymentMode === "authenticated" && exposure === "public") {
+  if (exposure === "public") {
     const urlInput = await p.text({
       message: "Public base URL",
       defaultValue: currentAuth?.publicBaseUrl ?? "",

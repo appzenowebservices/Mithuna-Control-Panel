@@ -20,7 +20,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Company } from "@paperclipai/shared";
+import type { Company, DeploymentMode } from "@paperclipai/shared";
 import { Link, useLocation, useNavigate } from "@/lib/router";
 import { authApi } from "@/api/auth";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ import { CompanyPatternIcon } from "./CompanyPatternIcon";
 import { SignOutConfirmDialog } from "./SignOutConfirmDialog";
 
 interface SidebarCompanyMenuProps {
+  deploymentMode?: DeploymentMode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -129,7 +130,11 @@ function SortableCompanyItem({
   );
 }
 
-export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompanyMenuProps = {}) {
+export function SidebarCompanyMenu({
+  deploymentMode,
+  open: controlledOpen,
+  onOpenChange,
+}: SidebarCompanyMenuProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
@@ -235,16 +240,16 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
           // the Button's default size adds `has-[>svg]:px-3`, so with the chevron
           // svg present (expanded) it was already 12px but without it (rail) it fell
           // back to 8px — a 4px horizontal jump on collapse (PAP-10676).
-          className="h-9 flex-1 justify-start gap-2 px-3 text-left rounded-2xl hover:bg-accent/50"
+          className="h-9 flex-1 justify-start gap-2 rounded-lg px-3 text-left hover:bg-sidebar-accent/50"
           aria-label={selectedCompany ? `Open ${selectedCompany.name} workspace switcher` : "Open workspace switcher"}
         >
           <span className="flex min-w-0 flex-1 items-center gap-2">
             {selectedCompany ? <WorkspaceIcon company={selectedCompany} /> : null}
-            <span className={cn("truncate text-sm font-bold text-foreground", rail && SIDEBAR_RAIL_HIDDEN_LABEL)}>
+            <span className={cn("truncate text-sm font-bold text-sidebar-foreground", rail && SIDEBAR_RAIL_HIDDEN_LABEL)}>
               {selectedCompany?.name ?? "Select workspace"}
             </span>
           </span>
-          {!rail && <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" />}
+          {!rail && <ChevronsUpDown className="size-3.5 shrink-0 text-sidebar-foreground/55" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={8} className="w-64 p-1">
@@ -331,7 +336,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
             <span>Company settings</span>
           </Link>
         </DropdownMenuItem>
-        {session?.session ? (
+        {deploymentMode === "authenticated" ? (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem

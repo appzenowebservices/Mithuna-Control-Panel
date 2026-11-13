@@ -529,7 +529,7 @@ function LiveRunIndicator({
         <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
       </span>
-      <span className="text-[11px] font-black uppercase tracking-widest text-blue-700 content-dark:text-blue-700">
+      <span className="text-[11px] font-black uppercase tracking-widest text-blue-700 content-dark:text-blue-300">
         Live{liveCount > 1 ? ` (${liveCount})` : ""}
       </span>
     </Link>

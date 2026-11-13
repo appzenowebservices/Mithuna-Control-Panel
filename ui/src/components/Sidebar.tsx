@@ -1,3 +1,4 @@
+  import type { DeploymentMode } from "@paperclipai/shared";
   import {
     Inbox,
     CircleDot,
@@ -41,7 +42,7 @@
   import { PluginLauncherOutlet } from "@/plugins/launchers";
   import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
 
-  export function Sidebar() {
+  export function Sidebar({ deploymentMode }: { deploymentMode?: DeploymentMode }) {
     const { openNewIssue } = useDialogActions();
     const { selectedCompanyId, selectedCompany } = useCompany();
     const { isMobile, collapsed, collapseLocked, peeking, toggleCollapsed, setCollapsed } = useSidebar();
@@ -76,10 +77,9 @@
     };
 
     return (
-      <aside className="w-full h-full min-h-0 border-r border-border bg-background flex flex-col">
-        {/* Top bar: Company name (bold) + Search — aligned with top sections (no visible border) */}
-        <div className="flex items-center gap-1 px-3 h-12 shrink-0">
-          <SidebarCompanyMenu />
+      <aside className="app-sidebar flex h-full min-h-0 w-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+        <div className="flex h-14 shrink-0 items-center gap-1 border-b border-sidebar-border bg-sidebar px-3">
+          <SidebarCompanyMenu deploymentMode={deploymentMode} />
           {/* In the collapsed rail the search/toggle controls don't fit beside the
               logo — keeping them would overflow the 64px rail and squeeze the logo
               out of alignment with the icon column below it (PAP-10676). They return
@@ -91,7 +91,7 @@
                 asChild
                 variant="ghost"
                 size="icon-sm"
-                className="text-muted-foreground shrink-0 rounded-xl hover:bg-accent/50 hover:text-foreground"
+                className="shrink-0 rounded-lg text-sidebar-foreground/65 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                 aria-label="Open search"
                 title="Open search"
               >
@@ -110,7 +110,7 @@
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="text-muted-foreground shrink-0 rounded-xl hover:bg-accent/50 hover:text-foreground"
+                    className="shrink-0 rounded-lg text-sidebar-foreground/65 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     aria-label="Keep sidebar expanded"
                     title="Keep sidebar expanded"
                     onClick={() => setCollapsed(false)}
@@ -121,7 +121,7 @@
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="text-muted-foreground shrink-0 rounded-xl hover:bg-accent/50 hover:text-foreground"
+                    className="shrink-0 rounded-lg text-sidebar-foreground/65 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     aria-expanded={!collapsed}
                     aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                     title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -144,7 +144,7 @@
                   onClick={() => openNewIssue()}
                   data-slot="icon-button"
                   aria-label={rail ? "New Task" : undefined}
-                  className="flex items-center gap-2.5 px-3 py-2 pointer-coarse:py-1.5 text-[13px] font-bold text-foreground/90 rounded-2xl transition-colors hover:bg-accent/50 hover:text-foreground"
+                  className="flex items-center gap-2.5 rounded-lg bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 pointer-coarse:py-1.5"
                 >
                   <SquarePen className="h-4 w-4 shrink-0" />
                   <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>New Task</span>

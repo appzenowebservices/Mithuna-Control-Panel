@@ -178,26 +178,19 @@ if (tailscaleAuth || bindMode) {
   } else {
     delete env.PAPERCLIP_BIND_HOST;
   }
-  if (effectiveBind === "loopback" && !tailscaleAuth) {
-    delete env.PAPERCLIP_DEPLOYMENT_MODE;
-    delete env.PAPERCLIP_DEPLOYMENT_EXPOSURE;
-    delete env.PAPERCLIP_AUTH_BASE_URL_MODE;
-    console.log("[paperclip] dev mode: local_trusted (bind=loopback)");
-  } else {
-    env.PAPERCLIP_DEPLOYMENT_MODE = "authenticated";
-    env.PAPERCLIP_DEPLOYMENT_EXPOSURE = "private";
-    env.PAPERCLIP_AUTH_BASE_URL_MODE = "auto";
-    console.log(
-      `[paperclip] dev mode: authenticated/private (bind=${effectiveBind}${bindHost ? `:${bindHost}` : ""})`,
-    );
-  }
+  env.PAPERCLIP_DEPLOYMENT_MODE = "authenticated";
+  env.PAPERCLIP_DEPLOYMENT_EXPOSURE = "private";
+  env.PAPERCLIP_AUTH_BASE_URL_MODE = "auto";
+  console.log(
+    `[paperclip] dev mode: authenticated/private (bind=${effectiveBind}${bindHost ? `:${bindHost}` : ""})`,
+  );
 } else {
   delete env.PAPERCLIP_BIND;
   delete env.PAPERCLIP_BIND_HOST;
-  delete env.PAPERCLIP_DEPLOYMENT_MODE;
-  delete env.PAPERCLIP_DEPLOYMENT_EXPOSURE;
-  delete env.PAPERCLIP_AUTH_BASE_URL_MODE;
-  console.log("[paperclip] dev mode: local_trusted (default)");
+  env.PAPERCLIP_DEPLOYMENT_MODE = "authenticated";
+  env.PAPERCLIP_DEPLOYMENT_EXPOSURE = "private";
+  env.PAPERCLIP_AUTH_BASE_URL_MODE = "auto";
+  console.log("[paperclip] dev mode: authenticated/private (bind=loopback)");
 }
 
 const serverPort = Number.parseInt(env.PORT ?? process.env.PORT ?? "3100", 10) || 3100;

@@ -91,8 +91,8 @@ export function RoutineTriggerCard({
               className={cn(
                 "inline-flex items-center rounded-xl border px-2 py-0.5 text-[10px] font-black uppercase tracking-widest",
                 lastResultOk
-                  ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-700"
-                  : "border-red-500/40 bg-red-100 text-red-700 content-dark:bg-red-500/15 content-dark:text-red-700",
+                  ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-300"
+                  : "border-red-500/40 bg-red-100 text-red-700 content-dark:bg-red-500/15 content-dark:text-red-300",
               )}
             >
               {String(trigger.lastResult)}

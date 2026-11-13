@@ -48,43 +48,43 @@ export const issueStatusTextDefault = "text-muted-foreground";
 
 export const statusBadge: Record<string, string> = {
   // Agent statuses
-  active: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  running: "bg-cyan-100 text-cyan-700 border-cyan-500/40 content-dark:bg-cyan-500/15 content-dark:text-cyan-700 content-dark:border-cyan-500/40",
-  scheduled_retry: "bg-sky-100 text-sky-700 border-sky-500/40 content-dark:bg-sky-500/15 content-dark:text-sky-700 content-dark:border-sky-500/40",
-  paused: "bg-orange-100 text-orange-700 border-orange-500/40 content-dark:bg-orange-500/15 content-dark:text-orange-700 content-dark:border-orange-500/40",
-  idle: "bg-yellow-100 text-yellow-700 border-yellow-500/40 content-dark:bg-yellow-500/15 content-dark:text-yellow-700 content-dark:border-yellow-500/40",
+  active: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  running: "bg-cyan-100 text-cyan-700 border-cyan-500/40 content-dark:bg-cyan-500/15 content-dark:text-cyan-300 content-dark:border-cyan-500/40",
+  scheduled_retry: "bg-sky-100 text-sky-700 border-sky-500/40 content-dark:bg-sky-500/15 content-dark:text-sky-300 content-dark:border-sky-500/40",
+  paused: "bg-orange-100 text-orange-700 border-orange-500/40 content-dark:bg-orange-500/15 content-dark:text-orange-300 content-dark:border-orange-500/40",
+  idle: "bg-yellow-100 text-yellow-700 border-yellow-500/40 content-dark:bg-yellow-500/15 content-dark:text-yellow-300 content-dark:border-yellow-500/40",
   archived: "bg-muted text-muted-foreground border-border/60",
 
   // Goal statuses
   planned: "bg-muted text-muted-foreground border-border/60",
-  achieved: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  completed: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
+  achieved: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  completed: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
 
   // Run statuses
-  failed: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
-  timed_out: "bg-orange-100 text-orange-700 border-orange-500/40 content-dark:bg-orange-500/15 content-dark:text-orange-700 content-dark:border-orange-500/40",
-  succeeded: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  ok: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  warning: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  error: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
-  info: "bg-sky-100 text-sky-700 border-sky-500/40 content-dark:bg-sky-500/15 content-dark:text-sky-700 content-dark:border-sky-500/40",
-  terminated: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
-  pending: "bg-yellow-100 text-yellow-700 border-yellow-500/40 content-dark:bg-yellow-500/15 content-dark:text-yellow-700 content-dark:border-yellow-500/40",
+  failed: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
+  timed_out: "bg-orange-100 text-orange-700 border-orange-500/40 content-dark:bg-orange-500/15 content-dark:text-orange-300 content-dark:border-orange-500/40",
+  succeeded: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  ok: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  warning: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  error: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
+  info: "bg-sky-100 text-sky-700 border-sky-500/40 content-dark:bg-sky-500/15 content-dark:text-sky-300 content-dark:border-sky-500/40",
+  terminated: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
+  pending: "bg-yellow-100 text-yellow-700 border-yellow-500/40 content-dark:bg-yellow-500/15 content-dark:text-yellow-300 content-dark:border-yellow-500/40",
 
   // Approval statuses
-  pending_approval: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  revision_requested: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  approved: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  rejected: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
+  pending_approval: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  revision_requested: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  approved: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  rejected: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
 
   // Issue statuses — consistent hues with issueStatusIcon above (PAP-75 brand
   // mapping: todo → amber, in_progress → blue "liveness").
   backlog: "bg-muted text-muted-foreground border-border/60",
-  todo: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  in_progress: "bg-blue-100 text-blue-700 border-blue-500/40 content-dark:bg-blue-500/15 content-dark:text-blue-700 content-dark:border-blue-500/40",
-  in_review: "bg-violet-100 text-violet-700 border-violet-500/40 content-dark:bg-violet-500/15 content-dark:text-violet-700 content-dark:border-violet-500/40",
-  blocked: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
-  done: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
+  todo: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  in_progress: "bg-blue-100 text-blue-700 border-blue-500/40 content-dark:bg-blue-500/15 content-dark:text-blue-300 content-dark:border-blue-500/40",
+  in_review: "bg-violet-100 text-violet-700 border-violet-500/40 content-dark:bg-violet-500/15 content-dark:text-violet-300 content-dark:border-violet-500/40",
+  blocked: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
+  done: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
   cancelled: "bg-muted text-muted-foreground border-border/60",
 };
 
@@ -284,16 +284,16 @@ export const externalObjectStatusIconDefault = "text-muted-foreground border-mut
 
 export const externalObjectStatusBadge: Record<string, string> = {
   unknown: "bg-muted text-muted-foreground border-border/60",
-  open: "bg-blue-100 text-blue-700 border-blue-500/40 content-dark:bg-blue-500/15 content-dark:text-blue-700 content-dark:border-blue-500/40",
-  waiting: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  running: "bg-cyan-100 text-cyan-700 border-cyan-500/40 content-dark:bg-cyan-500/15 content-dark:text-cyan-700 content-dark:border-cyan-500/40",
-  succeeded: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-700 content-dark:border-green-500/40",
-  failed: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
-  blocked: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
+  open: "bg-blue-100 text-blue-700 border-blue-500/40 content-dark:bg-blue-500/15 content-dark:text-blue-300 content-dark:border-blue-500/40",
+  waiting: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  running: "bg-cyan-100 text-cyan-700 border-cyan-500/40 content-dark:bg-cyan-500/15 content-dark:text-cyan-300 content-dark:border-cyan-500/40",
+  succeeded: "bg-green-100 text-green-700 border-green-500/40 content-dark:bg-green-500/15 content-dark:text-green-300 content-dark:border-green-500/40",
+  failed: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
+  blocked: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
   closed: "bg-muted text-muted-foreground border-border/60",
   archived: "bg-muted text-muted-foreground border-border/60",
-  auth_required: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-700 content-dark:border-amber-500/40",
-  unreachable: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-700 content-dark:border-red-500/40",
+  auth_required: "bg-amber-100 text-amber-700 border-amber-500/40 content-dark:bg-amber-500/15 content-dark:text-amber-300 content-dark:border-amber-500/40",
+  unreachable: "bg-red-100 text-red-700 border-red-500/40 content-dark:bg-red-500/15 content-dark:text-red-300 content-dark:border-red-500/40",
 };
 
 export const externalObjectStatusBadgeDefault = "bg-muted text-muted-foreground border-border/60";

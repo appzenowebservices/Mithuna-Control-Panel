@@ -1028,7 +1028,7 @@ export function AgentDetail() {
                 <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
               </span>
-              <span className="text-[11px] font-black uppercase tracking-widest text-blue-700 content-dark:text-blue-700">Live</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-blue-700 content-dark:text-blue-300">Live</span>
             </Link>
           )}
         </AgentActionButtons>
@@ -1058,7 +1058,7 @@ export function AgentDetail() {
 
       {actionError && <p className="text-sm text-destructive">{actionError}</p>}
       {isPendingApproval && (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border-2 border-amber-500/40 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border-2 border-amber-500/40 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-300">
           <span>This agent is pending board approval and cannot be invoked yet.</span>
           <Button
             variant="outline"
@@ -1270,9 +1270,9 @@ function LatestRunCard({ runs, agentId }: { runs: HeartbeatRun[]; agentId: strin
           </span>
           <span className={cn(
             "inline-flex items-center rounded-xl px-2 py-0.5 text-[10px] font-black tracking-widest uppercase",
-            run.invocationSource === "timer" ? "bg-blue-100 text-blue-700 content-dark:bg-blue-500/15 content-dark:text-blue-700"
-              : run.invocationSource === "assignment" ? "bg-violet-100 text-violet-700 content-dark:bg-violet-500/15 content-dark:text-violet-700"
-              : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 content-dark:bg-cyan-500/15 content-dark:text-cyan-700"
+            run.invocationSource === "timer" ? "bg-blue-100 text-blue-700 content-dark:bg-blue-500/15 content-dark:text-blue-300"
+              : run.invocationSource === "assignment" ? "bg-violet-100 text-violet-700 content-dark:bg-violet-500/15 content-dark:text-violet-300"
+              : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 content-dark:bg-cyan-500/15 content-dark:text-cyan-300"
               : "bg-muted text-muted-foreground"
           )}>
             {sourceLabels[run.invocationSource] ?? run.invocationSource}
@@ -2107,7 +2107,7 @@ function PromptsTab({
       {(bundle?.warnings ?? []).length > 0 && (
         <div className="space-y-2">
           {(bundle?.warnings ?? []).map((warning) => (
-            <div key={warning} className="rounded-xl border-2 border-sky-500/30 bg-sky-500/10 px-4 py-2.5 text-xs font-semibold text-sky-700 content-dark:text-sky-700">
+            <div key={warning} className="rounded-xl border-2 border-sky-500/30 bg-sky-500/10 px-4 py-2.5 text-xs font-semibold text-sky-700 content-dark:text-sky-300">
               {warning}
             </div>
           ))}
@@ -2403,7 +2403,7 @@ function PromptsTab({
                 return (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="ml-3 shrink-0 rounded-xl border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide cursor-help text-amber-700 content-dark:text-amber-700">
+                      <span className="ml-3 shrink-0 rounded-xl border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide cursor-help text-amber-700 content-dark:text-amber-300">
                         virtual file
                       </span>
                     </TooltipTrigger>
@@ -2855,7 +2855,7 @@ export function AgentSkillsTab({
       </div>
 
       {skillSnapshot?.warnings.length ? (
-        <div className="space-y-1 rounded-xl border-2 border-amber-500/30 bg-amber-50/60 px-4 py-3 text-sm font-semibold text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+        <div className="space-y-1 rounded-xl border-2 border-amber-500/30 bg-amber-50/60 px-4 py-3 text-sm font-semibold text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-300">
           {skillSnapshot.warnings.map((warning) => (
             <div key={warning}>{warning}</div>
           ))}
@@ -3040,7 +3040,7 @@ export function AgentSkillsTab({
           })()}
 
           {desiredOnlyMissingSkills.length > 0 && (
-            <div className="rounded-xl border-2 border-amber-500/30 bg-amber-50/60 px-4 py-3 text-sm text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-700">
+            <div className="rounded-xl border-2 border-amber-500/30 bg-amber-50/60 px-4 py-3 text-sm text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-300">
               <div className="font-black tracking-tight">Requested skills missing from the company library</div>
               <div className="mt-1 text-xs font-semibold">
                 {desiredOnlyMissingSkills.join(", ")}
@@ -3107,9 +3107,9 @@ function RunListItem({ run, isSelected, agentId }: { run: HeartbeatRun; isSelect
         </span>
         <span className={cn(
           "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium shrink-0",
-          run.invocationSource === "timer" ? "bg-blue-100 text-blue-700 content-dark:bg-blue-500/15 content-dark:text-blue-700"
-            : run.invocationSource === "assignment" ? "bg-violet-100 text-violet-700 content-dark:bg-violet-500/15 content-dark:text-violet-700"
-            : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 content-dark:bg-cyan-500/15 content-dark:text-cyan-700"
+          run.invocationSource === "timer" ? "bg-blue-100 text-blue-700 content-dark:bg-blue-500/15 content-dark:text-blue-300"
+            : run.invocationSource === "assignment" ? "bg-violet-100 text-violet-700 content-dark:bg-violet-500/15 content-dark:text-violet-300"
+            : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 content-dark:bg-cyan-500/15 content-dark:text-cyan-300"
             : "bg-muted text-muted-foreground"
         )}>
           {sourceLabels[run.invocationSource] ?? run.invocationSource}

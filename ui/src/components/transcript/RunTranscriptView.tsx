@@ -719,10 +719,10 @@ function TranscriptToolCard({
         : "Completed";
   const statusTone =
     block.status === "running"
-      ? "text-cyan-700 content-dark:text-cyan-700"
+      ? "text-cyan-700 content-dark:text-cyan-300"
       : block.status === "error"
-        ? "text-red-700 content-dark:text-red-700"
-        : "text-emerald-700 content-dark:text-emerald-700";
+        ? "text-red-700 content-dark:text-red-300"
+        : "text-emerald-700 content-dark:text-emerald-300";
   const detailsClass = cn(
     "space-y-3",
     block.status === "error" && "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3",
@@ -730,10 +730,10 @@ function TranscriptToolCard({
   const iconClass = cn(
     "mt-0.5 h-3.5 w-3.5 shrink-0",
     block.status === "error"
-      ? "text-red-600 content-dark:text-red-700"
+      ? "text-red-600 content-dark:text-red-300"
       : block.status === "completed"
-        ? "text-emerald-600 content-dark:text-emerald-700"
-        : "text-cyan-600 content-dark:text-cyan-700",
+        ? "text-emerald-600 content-dark:text-emerald-300"
+        : "text-cyan-600 content-dark:text-cyan-300",
   );
   const summary = block.status === "running"
     ? summarizeToolInput(block.name, block.input, density)
@@ -791,7 +791,7 @@ function TranscriptToolCard({
                 </div>
                 <pre className={cn(
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
-                  block.status === "error" ? "text-red-700 content-dark:text-red-700" : "text-foreground/80",
+                  block.status === "error" ? "text-red-700 content-dark:text-red-300" : "text-foreground/80",
                 )}>
                   {block.result ? formatToolPayload(block.result) : "Waiting for result..."}
                 </pre>
@@ -832,7 +832,7 @@ function TranscriptCommandGroup({
     ? summarizeToolInput("command_execution", runningItem.input, density)
     : null;
   const statusTone = isRunning
-      ? "text-cyan-700 content-dark:text-cyan-700"
+      ? "text-cyan-700 content-dark:text-cyan-300"
       : "text-foreground/70";
 
   return (
@@ -860,7 +860,7 @@ function TranscriptCommandGroup({
                 "inline-flex h-6 w-6 items-center justify-center rounded-full border shadow-sm",
                 index > 0 && "-ml-1.5",
                 isRunning
-                  ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-700"
+                  ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-300"
                   : "border-border/70 bg-background text-foreground/55",
                 isRunning && "animate-pulse",
               )}
@@ -907,9 +907,9 @@ function TranscriptCommandGroup({
                 <span className={cn(
                   "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                   item.status === "error"
-                    ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-700"
+                    ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-300"
                     : item.status === "running"
-                      ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-700"
+                      ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-300"
                       : "border-border/70 bg-background text-foreground/55",
                 )}>
                   <TerminalSquare className="h-3 w-3" />
@@ -921,7 +921,7 @@ function TranscriptCommandGroup({
               {item.result && (
                 <pre className={cn(
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
-                  item.status === "error" ? "text-red-700 content-dark:text-red-700" : "text-foreground/80",
+                  item.status === "error" ? "text-red-700 content-dark:text-red-300" : "text-foreground/80",
                 )}>
                   {formatToolPayload(item.result)}
                 </pre>
@@ -960,7 +960,7 @@ function TranscriptToolGroup({
     ? summarizeToolInput(runningItem.name, runningItem.input, density)
     : null;
   const statusTone = isRunning
-    ? "text-cyan-700 content-dark:text-cyan-700"
+    ? "text-cyan-700 content-dark:text-cyan-300"
     : "text-foreground/70";
 
   return (
@@ -983,9 +983,9 @@ function TranscriptToolGroup({
                   "inline-flex h-6 w-6 items-center justify-center rounded-full border shadow-sm",
                   index > 0 && "-ml-1.5",
                   isItemRunning
-                    ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-700"
+                    ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-300"
                     : isItemError
-                      ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-700"
+                      ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-300"
                       : "border-border/70 bg-background text-foreground/55",
                   isItemRunning && "animate-pulse",
                 )}
@@ -1022,9 +1022,9 @@ function TranscriptToolGroup({
                 <span className={cn(
                   "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                   item.status === "error"
-                    ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-700"
+                    ? "border-red-500/25 bg-red-500/[0.08] text-red-600 content-dark:text-red-300"
                     : item.status === "running"
-                      ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-700"
+                      ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 content-dark:text-cyan-300"
                       : "border-border/70 bg-background text-foreground/55",
                 )}>
                   <Wrench className="h-3 w-3" />
@@ -1033,9 +1033,9 @@ function TranscriptToolGroup({
                   {humanizeLabel(item.name)}
                 </span>
                 <span className={cn("text-[10px] font-semibold uppercase tracking-[0.14em]",
-                  item.status === "running" ? "text-cyan-700 content-dark:text-cyan-700"
-                  : item.status === "error" ? "text-red-700 content-dark:text-red-700"
-                  : "text-emerald-700 content-dark:text-emerald-700"
+                  item.status === "running" ? "text-cyan-700 content-dark:text-cyan-300"
+                  : item.status === "error" ? "text-red-700 content-dark:text-red-300"
+                  : "text-emerald-700 content-dark:text-emerald-300"
                 )}>
                   {item.status === "running" ? "Running" : item.status === "error" ? "Errored" : "Completed"}
                 </span>
@@ -1052,7 +1052,7 @@ function TranscriptToolGroup({
                     <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Result</div>
                     <pre className={cn(
                       "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
-                      item.status === "error" ? "text-red-700 content-dark:text-red-700" : "text-foreground/80",
+                      item.status === "error" ? "text-red-700 content-dark:text-red-300" : "text-foreground/80",
                     )}>
                       {formatToolPayload(item.result)}
                     </pre>
@@ -1077,7 +1077,7 @@ function TranscriptActivityRow({
   return (
     <div className="flex items-start gap-2">
       {block.status === "completed" ? (
-        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 content-dark:text-emerald-700" />
+        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 content-dark:text-emerald-300" />
       ) : (
         <span className="relative mt-1 flex h-2.5 w-2.5 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-70" />
@@ -1106,11 +1106,11 @@ function TranscriptEventRow({
   const compact = density === "compact";
   const toneClasses =
     block.tone === "error"
-      ? "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3 text-red-700 content-dark:text-red-700"
+      ? "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3 text-red-700 content-dark:text-red-300"
       : block.tone === "warn"
-        ? "text-amber-700 content-dark:text-amber-700"
+        ? "text-amber-700 content-dark:text-amber-300"
         : block.tone === "info"
-          ? "text-sky-700 content-dark:text-sky-700"
+          ? "text-sky-700 content-dark:text-sky-300"
           : "text-foreground/75";
 
   return (
@@ -1127,7 +1127,7 @@ function TranscriptEventRow({
           {block.label === "result" && block.tone !== "error" ? (
             <MarkdownBody
               className={cn(
-                "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-sky-700 content-dark:text-sky-700",
+                "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-sky-700 content-dark:text-sky-300",
                 compact ? "text-[11px] leading-5" : "text-xs leading-5",
               )}
               externalReferences={externalReferences}
@@ -1183,14 +1183,14 @@ function TranscriptDiffGroup({
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((v) => !v); } }}
       >
         <GitCompare className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-        <span className={cn("text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700 content-dark:text-blue-700")}>
+        <span className={cn("text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700 content-dark:text-blue-300")}>
           {shortFile}
         </span>
         {hasChanges && (
           <span className="text-[10px] tabular-nums">
-            <span className="text-emerald-600 content-dark:text-emerald-600">+{addCount}</span>
+            <span className="text-emerald-600 content-dark:text-emerald-300">+{addCount}</span>
             {" "}
-            <span className="text-red-600 content-dark:text-red-600">-{removeCount}</span>
+            <span className="text-red-600 content-dark:text-red-300">-{removeCount}</span>
           </span>
         )}
         {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
@@ -1205,23 +1205,23 @@ function TranscriptDiffGroup({
             switch (hunk.changeType) {
               case "remove":
                 return (
-                  <span key={key} className="block bg-red-500/[0.10] text-red-700 content-dark:text-red-700 -mx-2 px-2">
-                    <span className="select-none mr-2 text-red-500/60 content-dark:text-red-600/50">-</span>
+                  <span key={key} className="block bg-red-500/[0.10] text-red-700 content-dark:text-red-300 -mx-2 px-2">
+                    <span className="select-none mr-2 text-red-500/60 content-dark:text-red-300/50">-</span>
                     {hunk.text}
                     {"\n"}
                   </span>
                 );
               case "add":
                 return (
-                  <span key={key} className="block bg-emerald-500/[0.10] text-emerald-700 content-dark:text-emerald-700 -mx-2 px-2">
-                    <span className="select-none mr-2 text-emerald-500/60 content-dark:text-emerald-600/50">+</span>
+                  <span key={key} className="block bg-emerald-500/[0.10] text-emerald-700 content-dark:text-emerald-300 -mx-2 px-2">
+                    <span className="select-none mr-2 text-emerald-500/60 content-dark:text-emerald-300/50">+</span>
                     {hunk.text}
                     {"\n"}
                   </span>
                 );
               case "file_header":
                 return (
-                  <span key={key} className="block font-semibold text-blue-600 content-dark:text-blue-700 mt-2 first:mt-0">
+                  <span key={key} className="block font-semibold text-blue-600 content-dark:text-blue-300 mt-2 first:mt-0">
                     {hunk.text}
                     {"\n"}
                   </span>
@@ -1260,7 +1260,7 @@ function TranscriptStderrGroup({
   const [open, setOpen] = useState(false);
   const compact = density === "compact";
   return (
-    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-2 text-amber-700 content-dark:text-amber-700">
+    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-2 text-amber-700 content-dark:text-amber-300">
       <div
         role="button"
         tabIndex={0}
@@ -1274,10 +1274,10 @@ function TranscriptStderrGroup({
         {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
       </div>
       {open && (
-        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-amber-700/80 content-dark:text-amber-700/80 pl-5">
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-amber-700/80 content-dark:text-amber-300/80 pl-5">
           {block.lines.map((line, i) => (
             <span key={`${line.ts}-${i}`}>
-              <span className="select-none text-amber-500/50 content-dark:text-amber-600/40">{i > 0 ? "\n" : ""}</span>
+              <span className="select-none text-amber-500/50 content-dark:text-amber-300/40">{i > 0 ? "\n" : ""}</span>
               {line.text}
             </span>
           ))}
@@ -1296,7 +1296,7 @@ function TranscriptSystemGroup({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-2 text-blue-700 content-dark:text-blue-700">
+    <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-2 text-blue-700 content-dark:text-blue-300">
       <div
         role="button"
         tabIndex={0}
@@ -1311,10 +1311,10 @@ function TranscriptSystemGroup({
         {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
       </div>
       {open && (
-        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-blue-700/80 content-dark:text-blue-700/80 pl-5">
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-blue-700/80 content-dark:text-blue-300/80 pl-5">
           {block.lines.map((line, i) => (
             <span key={`${line.ts}-${i}`}>
-              <span className="select-none text-blue-500/40 content-dark:text-blue-600/30">{i > 0 ? "\n" : ""}</span>
+              <span className="select-none text-blue-500/40 content-dark:text-blue-300/30">{i > 0 ? "\n" : ""}</span>
               {line.text}
             </span>
           ))}

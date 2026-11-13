@@ -1,34 +1,29 @@
-# Deployment Modes
+# Deployment and Authentication
 
-Status: Canonical deployment and auth mode model  
+Status: Canonical deployment and auth model
 Date: 2026-02-23
 
 ## 1. Purpose
 
-Paperclip supports two runtime modes:
-
-1. `local_trusted`
-2. `authenticated`
-
-`authenticated` supports two exposure policies:
+Paperclip requires human authentication in every deployment. Exposure is a
+separate policy:
 
 1. `private`
 2. `public`
 
-This keeps one authenticated auth stack while still separating low-friction private-network defaults from internet-facing hardening requirements.
+Private/public exposure controls network reachability, not whether users sign in.
 
 Paperclip now treats **bind** as a separate concern from auth:
 
-- auth model: `local_trusted` vs `authenticated`, plus `private/public`
+- auth model: `authenticated`, plus `private/public` exposure
 - reachability model: `server.bind = loopback | lan | tailnet | custom`
 
 ## 2. Canonical Model
 
-| Runtime Mode | Exposure | Human auth | Primary use |
-|---|---|---|---|
-| `local_trusted` | n/a | No login required | Single-operator local machine workflow |
-| `authenticated` | `private` | Login required | Private-network access (for example Tailscale/VPN/LAN) |
-| `authenticated` | `public` | Login required | Internet-facing/cloud deployment |
+| Exposure | Human auth | Primary use |
+|---|---|---|
+| `private` | Login required | Local, LAN, VPN, or tailnet deployment |
+| `public` | Login required | Internet-facing/cloud deployment |
 
 ## Reachability Model
 
@@ -40,12 +35,6 @@ Paperclip now treats **bind** as a separate concern from auth:
 | `custom` | Listen on an explicit host/IP | advanced interface-specific setups |
 
 ## 3. Security Policy
-
-## `local_trusted`
-
-- loopback-only host binding
-- no human login flow
-- optimized for fastest local startup
 
 ## `authenticated + private`
 
@@ -71,12 +60,12 @@ pnpm paperclipai onboard
 
 Server prompt behavior:
 
-1. quickstart `--yes` defaults to `server.bind=loopback` and therefore `local_trusted/private`
+1. quickstart `--yes` defaults to `server.bind=loopback` and `authenticated/private`
 2. advanced server setup asks reachability first:
-- `Trusted local` → `bind=loopback`, `local_trusted/private`
+- `Local computer` → `bind=loopback`, `authenticated/private`
 - `Private network` → `bind=lan`, `authenticated/private`
 - `Tailnet` → `bind=tailnet`, `authenticated/private`
-- `Custom` → manual mode/exposure/host entry
+- `Custom` → manual exposure/host entry
 3. raw host entry is only required for the `Custom` path
 4. explicit public URL is only required for `authenticated + public`
 
@@ -112,9 +101,11 @@ Required integration points:
 
 This is required because user assignment paths validate active membership for `assigneeUserId`.
 
-## 7. Local Trusted -> Authenticated Claim Flow
+## 7. Legacy Local Board Claim Flow
 
-When running `authenticated` mode, if the only instance admin is `local-board`, Paperclip emits a startup warning with a one-time high-entropy claim URL.
+Existing databases created before authentication was mandatory may have only
+the `local-board` instance admin. When no real instance admin exists, Paperclip
+emits a startup warning with a one-time high-entropy claim URL.
 
 - URL format: `/board-claim/<token>?code=<code>`
 - intended use: signed-in human claims board ownership
@@ -123,7 +114,7 @@ When running `authenticated` mode, if the only instance admin is `local-board`, 
   - demotes `local-board` admin role
   - ensures active owner membership for the claiming user across existing companies
 
-This prevents lockout when a user migrates from long-running local trusted usage to authenticated mode.
+This lets the first signed-in user claim an existing instance without losing its companies or data.
 
 ## 8. First Admin Setup For Fresh Authenticated Installs
 
@@ -156,17 +147,16 @@ For `authenticated/public`, browser first-admin claim is intentionally disabled.
 Public deployments must use the high-entropy bootstrap invite path unless a
 future public-hosted setup design explicitly changes this policy.
 
-## 9. Current Code Reality (As Of 2026-02-23)
+## 9. Current Code Reality
 
-- runtime values are `local_trusted | authenticated`
-- `authenticated` uses Better Auth sessions and bootstrap invite flow
-- `local_trusted` ensures a real local Board user principal in `authUsers` with `instance_user_roles` admin access
+- all browser access uses Better Auth sessions and the bootstrap invite flow
+- old config files may still contain `local_trusted`; runtime upgrades them to authenticated behavior
 - company creation ensures creator membership in `company_memberships` so user assignment/access flows remain consistent
 
 ## 10. Naming and Compatibility Policy
 
-- canonical naming is `local_trusted` and `authenticated` with `private/public` exposure
-- no long-term compatibility alias layer for discarded naming variants
+- canonical deployment naming is `authenticated` with `private/public` exposure
+- legacy `local_trusted` config values are accepted for reading but cannot disable authentication
 
 ## 11. Relationship to Other Docs
 

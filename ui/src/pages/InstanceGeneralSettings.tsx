@@ -11,6 +11,7 @@ import { LogOut, SlidersHorizontal } from "lucide-react";
 import { authApi } from "@/api/auth";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
+import { useNavigate } from "@/lib/router";
 import { ModeBadge } from "@/components/access/ModeBadge";
 import { Button } from "../components/ui/button";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
@@ -23,12 +24,14 @@ const FEEDBACK_TERMS_URL = import.meta.env.VITE_FEEDBACK_TERMS_URL?.trim() || "h
 export function InstanceGeneralSettings() {
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [actionError, setActionError] = useState<string | null>(null);
 
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
+      queryClient.setQueryData(queryKeys.auth.session, null);
+      navigate("/", { replace: true });
     },
     onError: (error) => {
       setActionError(error instanceof Error ? error.message : "Failed to sign out.");
@@ -350,25 +353,30 @@ export function InstanceGeneralSettings() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Sign out</h2>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Sign out of this Paperclip instance. You will be redirected to the login page.
-            </p>
+      {healthQuery.data?.deploymentMode === "authenticated" ? (
+        <section className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <h2 className="text-sm font-semibold">Sign out</h2>
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                Sign out of this Paperclip instance. You will be redirected to the login page.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={signOutMutation.isPending}
+              onClick={() => {
+                setActionError(null);
+                signOutMutation.mutate();
+              }}
+            >
+              <LogOut className="size-4" />
+              {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={signOutMutation.isPending}
-            onClick={() => signOutMutation.mutate()}
-          >
-            <LogOut className="size-4" />
-            {signOutMutation.isPending ? "Signing out..." : "Sign out"}
-          </Button>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }

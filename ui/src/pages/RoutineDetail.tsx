@@ -826,7 +826,7 @@ export function RoutineDetail() {
                 className={cn(
                   "inline-flex items-center rounded-xl border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest",
                   automationEnabled
-                    ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-700"
+                    ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-300"
                     : "border-border/60 bg-secondary/50 text-muted-foreground",
                 )}
               >

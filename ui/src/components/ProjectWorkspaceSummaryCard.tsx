@@ -70,7 +70,7 @@ export function ProjectWorkspaceSummaryCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-xl border px-2 py-0.5 text-[10px] font-black uppercase tracking-widest",
                     hasRunningServices
-                      ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-700"
+                      ? "border-emerald-500/40 bg-emerald-100 text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-300"
                       : "border-border/60 bg-secondary/50 text-muted-foreground",
                   )}
                 >
@@ -212,7 +212,7 @@ export function ProjectWorkspaceSummaryCard({
                     className={cn(
                       "break-all font-mono text-xs font-bold hover:underline",
                       summary.primaryServiceUrlRunning
-                        ? "text-emerald-700 content-dark:text-emerald-700"
+                        ? "text-emerald-700 content-dark:text-emerald-300"
                         : "text-foreground",
                     )}
                   >

@@ -87,7 +87,7 @@ export function CompanyWorkspacesCard({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="truncate text-sm font-black tracking-tight text-foreground">{workspace.name}</span>
                   {workspace.isPrimary ? (
-                    <span className="inline-flex items-center rounded-xl border border-emerald-500/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-700">
+                    <span className="inline-flex items-center rounded-xl border border-emerald-500/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 content-dark:bg-emerald-500/15 content-dark:text-emerald-300">
                       Primary
                     </span>
                   ) : null}

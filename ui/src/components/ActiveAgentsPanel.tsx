@@ -196,11 +196,11 @@ const AgentRunCard = memo(function AgentRunCard({
             <div className="mt-2.5 flex items-center gap-2 text-xs font-bold text-muted-foreground">
               {isActive ? (
                 run.status === "queued" ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700 shadow-xs content-dark:bg-amber-500/15 content-dark:text-amber-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700 shadow-xs content-dark:bg-amber-500/15 content-dark:text-amber-300">
                     Queued
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/40 bg-cyan-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-700 shadow-xs content-dark:bg-cyan-500/15 content-dark:text-cyan-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/40 bg-cyan-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-700 shadow-xs content-dark:bg-cyan-500/15 content-dark:text-cyan-300">
                     <span className="relative flex h-1.5 w-1.5">
                       <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500" />
