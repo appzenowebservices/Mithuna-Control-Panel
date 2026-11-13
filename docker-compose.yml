@@ -16,6 +16,9 @@ services:
     image: mithuna-control-panel
     container_name: appzeno-agent-panel
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     # Super-admin config lives in ONE place: the `.env` file next to this
     # compose file (copy `.env.example` to `.env` and fill it in). Every
     # KEY=VALUE there lands in the container; the explicit `environment:`
@@ -49,9 +52,31 @@ services:
       retries: 3
       start_period: 60s
 
+  # Fallback Postgres for deployments where the managed Supabase project is
+  # unavailable. The panel still speaks plain Postgres, so pointing
+  # DATABASE_URL at Supabase later needs no code change.
+  db:
+    image: postgres:16-alpine
+    container_name: mithuna-panel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: paperclip
+      POSTGRES_PASSWORD: ${PANEL_DB_PASSWORD:-mithuna-panel-db}
+      POSTGRES_DB: paperclip
+    volumes:
+      - panel-db-data:/var/lib/postgresql/data
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperclip -d paperclip"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
 networks:
   web:
     external: true
 
 volumes:
   panel-data:
+  panel-db-data:
