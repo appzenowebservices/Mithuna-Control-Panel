@@ -506,4 +506,62 @@ describeEmbeddedPostgres("access service", () => {
     expect(grants[0]?.scope).toEqual(scopedGrant);
     expect(grants[0]?.grantedByUserId).toBe("custom-grant-author");
   });
+
+  it("blocks a customer account from joining a second company", async () => {
+    const access = accessService(db);
+    const userId = `customer-${randomUUID()}`;
+    const companyIds = await Promise.all(
+      [0, 1].map(async () => {
+        const company = await db
+          .insert(companies)
+          .values({
+            name: `Tenant ${randomUUID()}`,
+            issuePrefix: `T${randomUUID().slice(0, 6).toUpperCase()}`,
+          })
+          .returning()
+          .then((rows) => rows[0]!);
+        return company.id;
+      }),
+    );
+
+    await access.ensureMembership(companyIds[0]!, "user", userId, "member");
+    await expect(
+      access.ensureMembership(companyIds[1]!, "user", userId, "member"),
+    ).rejects.toThrow(/only one workspace/i);
+  });
+
+  it("lets instance admins hold memberships across companies", async () => {
+    const access = accessService(db);
+    const userId = `admin-${randomUUID()}`;
+    await db.insert(instanceUserRoles).values({ userId, role: "instance_admin" });
+
+    const companyIds = await Promise.all(
+      [0, 1].map(async () => {
+        const company = await db
+          .insert(companies)
+          .values({
+            name: `Tenant ${randomUUID()}`,
+            issuePrefix: `T${randomUUID().slice(0, 6).toUpperCase()}`,
+          })
+          .returning()
+          .then((rows) => rows[0]!);
+        return company.id;
+      }),
+    );
+
+    await access.ensureMembership(companyIds[0]!, "user", userId, "owner");
+    await access.ensureMembership(companyIds[1]!, "user", userId, "owner");
+
+    const memberships = await db
+      .select({ companyId: companyMemberships.companyId })
+      .from(companyMemberships)
+      .where(
+        and(
+          eq(companyMemberships.principalType, "user"),
+          eq(companyMemberships.principalId, userId),
+          eq(companyMemberships.status, "active"),
+        ),
+      );
+    expect(memberships).toHaveLength(2);
+  });
 });

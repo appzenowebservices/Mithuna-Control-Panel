@@ -5,7 +5,6 @@ import { authApi } from "../api/auth";
 import { queryKeys } from "../lib/queryKeys";
 import { getRememberedInvitePath } from "../lib/invite-memory";
 import { Button } from "@/components/ui/button";
-import { AsciiArtAnimation } from "@/components/AsciiArtAnimation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { healthApi } from "@/api/health";
 import { Sparkles } from "lucide-react";
@@ -16,7 +15,9 @@ export function AuthPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [mode, setMode] = useState<AuthMode>("sign_in");
+  const [mode, setMode] = useState<AuthMode>(
+    searchParams.get("mode") === "sign_up" ? "sign_up" : "sign_in",
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -239,9 +240,20 @@ export function AuthPage() {
         </div>
       </div>
 
-      {/* Right half — ASCII art animation (hidden on mobile) */}
-      <div className="hidden md:block w-1/2 overflow-hidden">
-        <AsciiArtAnimation />
+      {/* Right half — login mascot (hidden on mobile) */}
+      <div className="relative hidden w-1/2 items-center justify-center overflow-hidden border-l border-border bg-[#f7f2e7] md:flex">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,var(--accent)_0%,transparent_65%)] opacity-60"
+        />
+        <img
+          src="/login-mascot.gif"
+          alt="Mithuna mascot"
+          width={443}
+          height={394}
+          className="relative h-auto w-full max-w-[440px] select-none mix-blend-multiply"
+          draggable={false}
+        />
       </div>
     </div>
   );

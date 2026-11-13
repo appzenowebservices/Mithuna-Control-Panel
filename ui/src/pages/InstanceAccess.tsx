@@ -183,7 +183,9 @@ export function InstanceAccess() {
                 <div>
                   <h2 className="text-sm font-semibold">Company access</h2>
                   <p className="text-sm text-muted-foreground">
-                    Toggle company membership for this user. New access defaults to an active operator membership.
+                    {selectedUser?.isInstanceAdmin
+                      ? "Toggle company membership for this user. New access defaults to an active operator membership."
+                      : "Customer accounts belong to one company. Selecting another company moves this user there."}
                   </p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
@@ -196,6 +198,9 @@ export function InstanceAccess() {
                         checked={selectedCompanyIds.has(company.id)}
                         onCheckedChange={(checked) => {
                           setSelectedCompanyIds((current) => {
+                            if (checked && !selectedUser?.isInstanceAdmin) {
+                              return new Set([company.id]);
+                            }
                             const next = new Set(current);
                             if (checked) next.add(company.id);
                             else next.delete(company.id);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, UserRound } from "lucide-react";
 import type { UserProfileDailyPoint, UserProfileWindowStats } from "@paperclipai/shared";
@@ -11,16 +11,7 @@ import { IssueStatusBadge } from "../components/StatusBadge";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCompany } from "../context/CompanyContext";
 import { queryKeys } from "../lib/queryKeys";
-import {
-  formatCents,
-  formatDate,
-  formatNumber,
-  formatShortDate,
-  formatTokens,
-  issueUrl,
-  providerDisplayName,
-  relativeTime,
-} from "../lib/utils";
+import { cn, formatCents, formatDate, formatNumber, formatShortDate, formatTokens, issueUrl, providerDisplayName, relativeTime } from "../lib/utils";
 
 const NO_COMPANY = "__none__";
 
@@ -40,41 +31,38 @@ function completionRate(stats: UserProfileWindowStats) {
   return `${Math.round((stats.completedIssues / stats.touchedIssues) * 100)}%`;
 }
 
-function HeroStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Panel({
+  title,
+  meta,
+  children,
+  className,
+  bodyClassName,
+}: {
+  title: string;
+  meta?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  bodyClassName?: string;
+}) {
   return (
-    <div className="min-w-0">
-      <div className="text-2xl font-semibold tabular-nums sm:text-3xl">{value}</div>
-      <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
-      {hint ? <div className="mt-0.5 text-xs text-muted-foreground/70">{hint}</div> : null}
-    </div>
+    <section className={cn("flex min-h-0 flex-col rounded-3xl border-2 border-border/80 bg-card/80 shadow-xl backdrop-blur-md", className)}>
+      <header className="flex shrink-0 items-baseline justify-between gap-3 border-b border-border/70 px-5 py-3">
+        <h2 className="text-lg font-black tracking-tight">{title}</h2>
+        {meta != null ? <span className="text-xs font-semibold tabular-nums text-muted-foreground">{meta}</span> : null}
+      </header>
+      <div className={cn("min-h-0 flex-1 overflow-y-auto px-5 py-1", bodyClassName)}>{children}</div>
+    </section>
   );
 }
 
-function WindowColumn({ stats }: { stats: UserProfileWindowStats }) {
-  const tokens = totalTokens(stats);
+function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-4 border-l border-border pl-5 first:border-l-0 first:pl-0">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{stats.label}</h2>
-        <span className="text-[11px] text-muted-foreground tabular-nums">{completionRate(stats)} done</span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-x-5 gap-y-3">
-        <Metric value={formatNumber(stats.touchedIssues)} label="Touched" />
-        <Metric value={formatNumber(stats.completedIssues)} label="Completed" />
-        <Metric value={formatNumber(stats.commentCount)} label="Comments" />
-        <Metric value={formatNumber(stats.activityCount)} label="Actions" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-x-5 gap-y-1.5 pt-3 text-xs tabular-nums text-muted-foreground">
-        <span>Tokens</span>
-        <span className="text-right text-foreground">{formatTokens(tokens)}</span>
-        <span>Spend</span>
-        <span className="text-right text-foreground">{formatCents(stats.costCents)}</span>
-        <span>Created</span>
-        <span className="text-right text-foreground">{formatNumber(stats.createdIssues)}</span>
-        <span>Open</span>
-        <span className="text-right text-foreground">{formatNumber(stats.assignedOpenIssues)}</span>
+    <div className="relative overflow-hidden rounded-3xl border-2 border-border/80 bg-card/80 p-5 shadow-xl backdrop-blur-md">
+      <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-primary/10 blur-2xl" />
+      <div className="relative">
+        <div className="text-3xl font-black tabular-nums">{value}</div>
+        <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
+        {hint ? <div className="mt-1 truncate text-xs font-semibold text-muted-foreground/80">{hint}</div> : null}
       </div>
     </div>
   );
@@ -83,8 +71,36 @@ function WindowColumn({ stats }: { stats: UserProfileWindowStats }) {
 function Metric({ value, label }: { value: string; label: string }) {
   return (
     <div className="min-w-0">
-      <div className="truncate text-xl font-semibold tabular-nums">{value}</div>
-      <div className="mt-0.5 text-[11px] text-muted-foreground">{label}</div>
+      <div className="truncate text-xl font-black tabular-nums">{value}</div>
+      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function WindowCard({ stats }: { stats: UserProfileWindowStats }) {
+  const tokens = totalTokens(stats);
+  return (
+    <div className="rounded-3xl border-2 border-border/80 bg-card/80 p-4 shadow-xl backdrop-blur-md">
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stats.label}</h2>
+        <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">{completionRate(stats)} done</span>
+      </div>
+      <div className="mt-2.5 grid grid-cols-4 gap-2">
+        <Metric value={formatNumber(stats.touchedIssues)} label="Touched" />
+        <Metric value={formatNumber(stats.completedIssues)} label="Completed" />
+        <Metric value={formatNumber(stats.commentCount)} label="Comments" />
+        <Metric value={formatNumber(stats.activityCount)} label="Actions" />
+      </div>
+      <div className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-0.5 border-t border-border/70 pt-2 text-[11px] tabular-nums text-muted-foreground">
+        <span>Tokens</span>
+        <span className="text-right font-semibold text-foreground">{formatTokens(tokens)}</span>
+        <span>Spend</span>
+        <span className="text-right font-semibold text-foreground">{formatCents(stats.costCents)}</span>
+        <span>Created</span>
+        <span className="text-right font-semibold text-foreground">{formatNumber(stats.createdIssues)}</span>
+        <span>Open</span>
+        <span className="text-right font-semibold text-foreground">{formatNumber(stats.assignedOpenIssues)}</span>
+      </div>
     </div>
   );
 }
@@ -93,18 +109,10 @@ function UsageChart({ points }: { points: UserProfileDailyPoint[] }) {
   const totals = points.map((point) => totalTokens(point));
   const maxTokens = Math.max(1, ...totals);
   const maxCompleted = Math.max(1, ...points.map((point) => point.completedIssues));
-  const totalTokensSum = totals.reduce((sum, value) => sum + value, 0);
 
   return (
-    <section>
-      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border pb-3">
-        <h2 className="text-sm font-semibold">Last 14 days</h2>
-        <div className="flex items-baseline gap-4 text-xs text-muted-foreground">
-          <span className="tabular-nums text-foreground">{formatTokens(totalTokensSum)}</span>
-          <span>tokens total</span>
-        </div>
-      </div>
-      <div className="mt-6 grid grid-cols-[repeat(14,minmax(0,1fr))] items-end gap-1.5 sm:gap-2">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="grid h-16 shrink-0 grid-cols-[repeat(14,minmax(0,1fr))] items-end gap-1.5 sm:gap-2">
         {points.map((point) => {
           const tokens = totalTokens(point);
           const heightPct = tokens === 0 ? 0 : Math.max(2, Math.round((tokens / maxTokens) * 100));
@@ -112,9 +120,9 @@ function UsageChart({ points }: { points: UserProfileDailyPoint[] }) {
             ? 0
             : Math.max(8, Math.round((point.completedIssues / maxCompleted) * 36));
           return (
-            <div key={point.date} className="group flex h-36 flex-col justify-end">
+            <div key={point.date} className="group flex h-full flex-col justify-end">
               <div
-                className="w-full bg-foreground/80 transition-opacity group-hover:bg-foreground"
+                className="w-full rounded-t-sm bg-foreground/80 transition-opacity group-hover:bg-foreground"
                 style={{ height: `${heightPct}%`, minHeight: tokens === 0 ? 1 : undefined }}
                 title={`${formatShortDate(point.date)}: ${formatTokens(tokens)} tokens, ${point.completedIssues} completed`}
               />
@@ -128,14 +136,14 @@ function UsageChart({ points }: { points: UserProfileDailyPoint[] }) {
           );
         })}
       </div>
-      <div className="mt-2 grid grid-cols-[repeat(14,minmax(0,1fr))] gap-1.5 text-[10px] tabular-nums text-muted-foreground sm:gap-2">
+      <div className="mt-2 shrink-0 grid grid-cols-[repeat(14,minmax(0,1fr))] gap-1.5 text-[10px] tabular-nums text-muted-foreground sm:gap-2">
         {points.map((point, index) => (
           <div key={point.date} className="text-center">
             {index === 0 || index === 6 || index === 13 ? formatShortDate(point.date) : null}
           </div>
         ))}
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-wide text-muted-foreground">
+      <div className="mt-2 flex shrink-0 flex-wrap items-center gap-4 text-[10px] uppercase tracking-wide text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2 w-2 bg-foreground/80" /> tokens / day
         </span>
@@ -143,7 +151,7 @@ function UsageChart({ points }: { points: UserProfileDailyPoint[] }) {
           <span className="h-[3px] w-4 rounded-full bg-emerald-500/80" /> completions
         </span>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -157,40 +165,25 @@ interface UsageRow {
   outputTokens: number;
 }
 
-function UsageList({
-  title,
-  empty,
-  rows,
-}: {
-  title: string;
-  empty: string;
-  rows: UsageRow[];
-}) {
+function UsageRows({ empty, rows }: { empty: string; rows: UsageRow[] }) {
+  if (rows.length === 0) {
+    return <div className="py-4 text-sm text-muted-foreground">{empty}</div>;
+  }
   return (
-    <section>
-      <div className="flex items-baseline justify-between gap-3 border-b border-border pb-3">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <span className="text-xs text-muted-foreground tabular-nums">{rows.length}</span>
-      </div>
-      {rows.length === 0 ? (
-        <div className="pt-4 text-sm text-muted-foreground">{empty}</div>
-      ) : (
-        <ul className="divide-y divide-border">
-          {rows.map((row) => (
-            <li key={row.key} className="grid gap-2 py-2.5 sm:grid-cols-[1fr_auto] sm:items-center">
-              <div className="min-w-0">
-                <div className="truncate text-sm font-medium">{row.label}</div>
-                <div className="truncate text-xs text-muted-foreground">{row.sublabel}</div>
-              </div>
-              <div className="flex items-baseline gap-4 text-xs tabular-nums sm:justify-end">
-                <span className="text-muted-foreground">{formatTokens(totalTokens(row))}</span>
-                <span className="font-medium">{formatCents(row.costCents)}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <ul className="divide-y divide-border">
+      {rows.map((row) => (
+        <li key={row.key} className="grid gap-1 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{row.label}</div>
+            <div className="truncate text-xs text-muted-foreground">{row.sublabel}</div>
+          </div>
+          <div className="flex items-baseline gap-3 text-xs tabular-nums sm:justify-end">
+            <span className="text-muted-foreground">{formatTokens(totalTokens(row))}</span>
+            <span className="font-medium">{formatCents(row.costCents)}</span>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -255,6 +248,7 @@ export function UserProfile() {
   }
 
   const allTimeTokens = allTime ? totalTokens(allTime) : 0;
+  const dailyTokens = data.daily.reduce((sum, point) => sum + totalTokens(point), 0);
   const metaParts = [
     data.user.membershipRole ?? "member",
     data.user.membershipStatus,
@@ -262,80 +256,81 @@ export function UserProfile() {
   ];
 
   return (
-    <div className="space-y-10 pb-10">
-      <section className="flex flex-col gap-7 border-b border-border pb-8">
-        <div className="flex flex-wrap items-center gap-5">
-          <Avatar className="size-16 border border-border" size="lg">
+    <div className="flex flex-col gap-4">
+      <section className="shrink-0 border-b border-border/80 pb-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar className="size-16 border-2 border-border/80 shadow-xl" size="lg">
             {data.user.image ? <AvatarImage src={data.user.image} alt={displayName} /> : null}
-            <AvatarFallback className="text-lg font-semibold">{initials(displayName)}</AvatarFallback>
+            <AvatarFallback className="text-lg font-black">{initials(displayName)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="truncate text-2xl font-semibold">{displayName}</h1>
-              <span className="text-sm text-muted-foreground">@{data.user.slug}</span>
+            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+              <h1 className="truncate text-3xl font-extrabold tracking-tight">{displayName}</h1>
+              <span className="text-base font-medium text-muted-foreground">@{data.user.slug}</span>
             </div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
               {data.user.email ? <span className="truncate">{data.user.email}</span> : null}
               {data.user.email ? <span aria-hidden>·</span> : null}
               <span>{metaParts.join(" · ")}</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <HeroStat label="All-time tokens" value={formatTokens(allTimeTokens)} hint={formatCents(allTime?.costCents ?? 0) + " spent"} />
-          <HeroStat label="Completed" value={formatNumber(allTime?.completedIssues ?? 0)} hint={allTime ? `${completionRate(allTime)} rate` : undefined} />
-          <HeroStat label="Open assigned" value={formatNumber(allTime?.assignedOpenIssues ?? 0)} hint={`${formatNumber(allTime?.createdIssues ?? 0)} created`} />
-          <HeroStat label="7-day actions" value={formatNumber(last7?.activityCount ?? 0)} hint={`${formatNumber(last7?.commentCount ?? 0)} comments`} />
+      <div className="grid shrink-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="All-time tokens" value={formatTokens(allTimeTokens)} hint={`${formatCents(allTime?.costCents ?? 0)} spent`} />
+        <StatCard label="Completed" value={formatNumber(allTime?.completedIssues ?? 0)} hint={allTime ? `${completionRate(allTime)} rate` : undefined} />
+        <StatCard label="Open assigned" value={formatNumber(allTime?.assignedOpenIssues ?? 0)} hint={`${formatNumber(allTime?.createdIssues ?? 0)} created`} />
+        <StatCard label="7-day actions" value={formatNumber(last7?.activityCount ?? 0)} hint={`${formatNumber(last7?.commentCount ?? 0)} comments`} />
+      </div>
+
+      <div className="grid shrink-0 gap-4 lg:grid-cols-3">
+        {data.stats.map((entry) => <WindowCard key={entry.key} stats={entry} />)}
+      </div>
+
+      <div className="grid h-[360px] shrink-0 gap-4 lg:grid-cols-3">
+        <div className="flex min-h-0 flex-col gap-4 lg:col-span-2">
+          <Panel
+            title="Last 14 days"
+            meta={`${formatTokens(dailyTokens)} tokens`}
+            className="shrink-0"
+            bodyClassName="pb-3 pt-3"
+          >
+            <UsageChart points={data.daily} />
+          </Panel>
+
+          <Panel title="Recent tasks" meta={data.recentIssues.length} className="flex-1">
+            {data.recentIssues.length === 0 ? (
+              <div className="py-4 text-sm text-muted-foreground">No touched tasks yet.</div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {data.recentIssues.map((issue) => (
+                  <li key={issue.id}>
+                    <Link
+                      to={issueUrl(issue)}
+                      className="grid gap-1 py-2 transition-colors hover:bg-accent/40 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+                    >
+                      <span className="font-mono text-xs text-muted-foreground">{issue.identifier ?? issue.id.slice(0, 8)}</span>
+                      <span className="truncate text-sm">{issue.title}</span>
+                      <span className="flex items-center gap-2.5 sm:justify-end">
+                        <IssueStatusBadge status={issue.status} />
+                        <span className="text-xs tabular-nums text-muted-foreground">{relativeTime(issue.updatedAt)}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </div>
-      </section>
 
-      <section className="grid gap-8 border-b border-border pb-8 lg:grid-cols-3">
-        {data.stats.map((entry) => <WindowColumn key={entry.key} stats={entry} />)}
-      </section>
-
-      <UsageChart points={data.daily} />
-
-      <div className="grid gap-10 pt-2 xl:grid-cols-2">
-        <section>
-          <div className="flex items-baseline justify-between gap-3 border-b border-border pb-3">
-            <h2 className="text-sm font-semibold">Recent tasks</h2>
-            <span className="text-xs text-muted-foreground tabular-nums">{data.recentIssues.length}</span>
-          </div>
-          {data.recentIssues.length === 0 ? (
-            <div className="pt-4 text-sm text-muted-foreground">No touched tasks yet.</div>
-          ) : (
-            <ul className="divide-y divide-border">
-              {data.recentIssues.map((issue) => (
-                <li key={issue.id}>
-                  <Link
-                    to={issueUrl(issue)}
-                    className="grid gap-2 py-2.5 transition-colors hover:bg-accent/40 sm:grid-cols-[auto_1fr_auto] sm:items-center"
-                  >
-                    <span className="font-mono text-xs text-muted-foreground">{issue.identifier ?? issue.id.slice(0, 8)}</span>
-                    <span className="truncate text-sm">{issue.title}</span>
-                    <span className="flex items-center gap-3 sm:justify-end">
-                      <IssueStatusBadge status={issue.status} />
-                      <span className="text-xs tabular-nums text-muted-foreground">{relativeTime(issue.updatedAt)}</span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section>
-          <div className="flex items-baseline justify-between gap-3 border-b border-border pb-3">
-            <h2 className="text-sm font-semibold">Recent activity</h2>
-            <span className="text-xs text-muted-foreground tabular-nums">{data.recentActivity.length}</span>
-          </div>
+        <Panel title="Recent activity" meta={data.recentActivity.length} className="min-h-0">
           {data.recentActivity.length === 0 ? (
-            <div className="pt-4 text-sm text-muted-foreground">No direct user actions recorded yet.</div>
+            <div className="py-4 text-sm text-muted-foreground">No direct user actions recorded yet.</div>
           ) : (
             <ul className="divide-y divide-border">
               {data.recentActivity.map((event) => (
-                <li key={event.id} className="grid gap-2 py-2.5 sm:grid-cols-[1fr_auto] sm:items-center">
+                <li key={event.id} className="grid gap-0.5 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div className="min-w-0">
                     <div className="truncate text-sm">{event.action.replaceAll("_", " ")}</div>
                     <div className="truncate text-xs text-muted-foreground">
@@ -347,12 +342,16 @@ export function UserProfile() {
               ))}
             </ul>
           )}
-        </section>
+        </Panel>
       </div>
 
-      <div className="grid gap-10 xl:grid-cols-2">
-        <UsageList title="Agent attribution" empty="No issue-linked token usage yet." rows={agentUsageRows} />
-        <UsageList title="Provider mix" empty="No provider usage attributed yet." rows={providerUsageRows} />
+      <div className="grid shrink-0 gap-4 lg:grid-cols-2">
+        <Panel title="Agent attribution" meta={agentUsageRows.length} className="max-h-40">
+          <UsageRows empty="No issue-linked token usage yet." rows={agentUsageRows} />
+        </Panel>
+        <Panel title="Provider mix" meta={providerUsageRows.length} className="max-h-40">
+          <UsageRows empty="No provider usage attributed yet." rows={providerUsageRows} />
+        </Panel>
       </div>
     </div>
   );

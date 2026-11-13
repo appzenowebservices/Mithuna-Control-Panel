@@ -76,10 +76,10 @@ export function SidebarNavItem({
       onClick={() => isMobile && setSidebarOpen(false)}
       className={({ isActive }) =>
         cn(
-          "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors pointer-coarse:py-1.5",
+          "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] leading-5 transition-colors pointer-coarse:py-1.5",
           isActive
             ? "bg-primary font-bold text-primary-foreground shadow-sm"
-            : "font-semibold text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            : "font-semibold text-foreground/90 hover:bg-accent/70 hover:text-accent-foreground",
           className
         )
       }
@@ -87,18 +87,18 @@ export function SidebarNavItem({
       <span className="relative shrink-0">
         <Icon className="h-4 w-4" strokeWidth={2.2} />
         {alert && (
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_hsl(var(--sidebar))]" />
+          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_var(--background)]" />
         )}
         {rail && !alert && hasLive && (
           <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
             <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_0_2px_hsl(var(--sidebar))]" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_0_2px_var(--background)]" />
           </span>
         )}
         {rail && !alert && !hasLive && hasBadge && (
           <span
             className={cn(
-              "absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full shadow-[0_0_0_2px_hsl(var(--sidebar))]",
+              "absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full shadow-[0_0_0_2px_var(--background)]",
               badgeTone === "danger" ? "bg-red-600" : "bg-primary"
             )}
           />

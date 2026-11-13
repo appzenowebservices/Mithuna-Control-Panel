@@ -8,9 +8,11 @@ import {
 } from "@paperclipai/db";
 import type { PermissionKey, PrincipalType } from "@paperclipai/shared";
 import { conflict } from "../errors.js";
+import { logger } from "../middleware/logger.js";
 import { assertAssignableAgent } from "./agent-assignability.js";
 import { authorizationService, type AuthorizationActor, type AuthorizationResource } from "./authorization.js";
 import { ensureHumanRoleDefaultGrants } from "./principal-access-compatibility.js";
+import { sendCompanyAccessWelcomeEmail } from "./welcome-email.js";
 
 type MembershipRow = typeof companyMemberships.$inferSelect;
 type GrantInput = {
@@ -453,6 +455,14 @@ export function accessService(db: Db) {
     const existingByCompany = new Map(existing.map((row) => [row.companyId, row]));
     const target = new Set(companyIds);
 
+    // SaaS tenancy: only instance admins may hold access to more than one
+    // company. Everyone else is a single-customer account.
+    if (target.size > 1 && !(await isInstanceAdmin(userId))) {
+      throw conflict(
+        "A customer account can access one company. Promote them to instance admin to grant multiple workspaces.",
+      );
+    }
+
     await db.transaction(async (tx) => {
       const toArchive = existing.filter((row) => !target.has(row.companyId) && row.status !== "archived");
       if (toArchive.length > 0 && options.actorUserId && options.actorUserId === userId) {
@@ -529,6 +539,16 @@ export function accessService(db: Db) {
       }
     });
 
+    // Notify the customer that their workspace is ready. Best-effort: a mail
+    // failure must never roll back or block the access grant.
+    const newlyActiveCompanyIds = [...target].filter((companyId) => {
+      const membership = existingByCompany.get(companyId);
+      return !membership || membership.status !== "active";
+    });
+    for (const companyId of newlyActiveCompanyIds) {
+      void sendCompanyAccessWelcomeEmail(db, { userId, companyId }, logger).catch(() => {});
+    }
+
     return listUserCompanyAccess(userId);
   }
 
@@ -539,6 +559,29 @@ export function accessService(db: Db) {
     membershipRole: string | null = "member",
     status: "pending" | "active" | "suspended" = "active",
   ) {
+    // SaaS tenancy: a human account belongs to exactly one customer company.
+    // Instance admins are the exception — they operate the control plane and
+    // hold memberships across every company.
+    if (principalType === "user" && status === "active") {
+      const otherActive = await db
+        .select({ id: companyMemberships.id })
+        .from(companyMemberships)
+        .where(
+          and(
+            eq(companyMemberships.principalType, "user"),
+            eq(companyMemberships.principalId, principalId),
+            eq(companyMemberships.status, "active"),
+            ne(companyMemberships.companyId, companyId),
+          ),
+        )
+        .limit(1);
+      if (otherActive.length > 0 && !(await isInstanceAdmin(principalId))) {
+        throw conflict(
+          "This account already belongs to a company. A customer account can access only one workspace.",
+        );
+      }
+    }
+
     const existing = await getMembership(companyId, principalType, principalId);
     if (existing) {
       if (existing.status !== status || existing.membershipRole !== membershipRole) {

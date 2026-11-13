@@ -74,7 +74,7 @@ function SidebarSectionHeader({
   const hasMenu = Boolean(
     menu && ((menu.actions?.length ?? 0) > 0 || (menu.radioChoices?.length ?? 0) > 0),
   );
-  const labelClassName = "text-[11px] font-bold uppercase tracking-[0.14em] text-sidebar-foreground/70";
+  const labelClassName = "text-[11px] font-bold uppercase tracking-[0.12em] text-sidebar-foreground/65";
   const headerControlVisibilityClassName = isMobile
     ? "opacity-100"
     : "opacity-0 group-hover/sidebar-section:opacity-100 group-focus-within/sidebar-section:opacity-100";
@@ -193,7 +193,7 @@ export function SidebarSection({
   const { collapsed, peeking } = useSidebar();
   const forceExpanded = useSidebarNavExpanded();
   const rail = collapsed && !peeking && !forceExpanded;
-  const content = <div className="flex flex-col gap-0.5 mt-0.5">{children}</div>;
+  const content = <div className="flex flex-col gap-1 mt-0.5">{children}</div>;
 
   // Collapsed rail: the section header would only show a clipped sliver of its
   // label, so replace it with a thin divider. The label stays in the a11y tree,
