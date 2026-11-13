@@ -17,6 +17,7 @@ interface SignOutConfirmDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   pending?: boolean;
+  error?: string | null;
 }
 
 /**
@@ -29,6 +30,7 @@ export function SignOutConfirmDialog({
   onOpenChange,
   onConfirm,
   pending = false,
+  error = null,
 }: SignOutConfirmDialogProps) {
   return (
     <AlertDialog
@@ -52,6 +54,11 @@ export function SignOutConfirmDialog({
                 This ends your session on this browser and returns you to the sign-in
                 screen. You can sign back in anytime with your email and password.
               </AlertDialogDescription>
+              {error ? (
+                <p role="alert" className="text-sm text-destructive">
+                  Could not sign out: {error}
+                </p>
+              ) : null}
             </AlertDialogHeader>
           </div>
         </div>

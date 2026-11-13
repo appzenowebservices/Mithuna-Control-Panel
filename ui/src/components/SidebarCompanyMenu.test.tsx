@@ -230,6 +230,7 @@ describe("SidebarCompanyMenu", () => {
     await flushReact();
 
     expect(mockAuthApi.signOut).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith("/auth", { replace: true });
 
     act(() => {
       root.unmount();

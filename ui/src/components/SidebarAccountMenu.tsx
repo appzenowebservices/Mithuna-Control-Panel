@@ -9,7 +9,7 @@ import {
   UserRoundPen,
 } from "lucide-react";
 import type { DeploymentMode } from "@paperclipai/shared";
-import { Link } from "@/lib/router";
+import { Link, useNavigate } from "@/lib/router";
 import { authApi } from "@/api/auth";
 import { queryKeys } from "@/lib/queryKeys";
 import { useSidebar } from "../context/SidebarContext";
@@ -109,6 +109,7 @@ export function SidebarAccountMenu({
   const [internalOpen, setInternalOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { isMobile, setSidebarOpen, collapsed, peeking } = useSidebar();
   const rail = collapsed && !peeking;
   const open = controlledOpen ?? internalOpen;
@@ -121,10 +122,12 @@ export function SidebarAccountMenu({
 
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
-    onSuccess: async () => {
+    onSuccess: () => {
       setSignOutOpen(false);
       setOpen(false);
-      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
+      if (isMobile) setSidebarOpen(false);
+      queryClient.setQueryData(queryKeys.auth.session, null);
+      navigate("/auth", { replace: true });
     },
   });
 
@@ -245,9 +248,13 @@ export function SidebarAccountMenu({
       </Popover>
       <SignOutConfirmDialog
         open={signOutOpen}
-        onOpenChange={setSignOutOpen}
+        onOpenChange={(nextOpen) => {
+          setSignOutOpen(nextOpen);
+          if (nextOpen) signOutMutation.reset();
+        }}
         onConfirm={() => signOutMutation.mutate()}
         pending={signOutMutation.isPending}
+        error={signOutMutation.error instanceof Error ? signOutMutation.error.message : null}
       />
     </div>
   );

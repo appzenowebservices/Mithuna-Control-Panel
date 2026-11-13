@@ -15,6 +15,7 @@ const mockAuthApi = vi.hoisted(() => ({
 }));
 const mockToggleTheme = vi.hoisted(() => vi.fn());
 const mockSetSidebarOpen = vi.hoisted(() => vi.fn());
+const mockNavigate = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/auth", () => ({
   authApi: mockAuthApi,
@@ -24,6 +25,7 @@ vi.mock("@/lib/router", () => ({
   Link: ({ children, to, ...props }: { children: React.ReactNode; to: string }) => (
     <a href={to} {...props}>{children}</a>
   ),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock("../context/SidebarContext", () => ({
@@ -181,6 +183,7 @@ describe("SidebarAccountMenu", () => {
     await flushReact();
 
     expect(mockAuthApi.signOut).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith("/auth", { replace: true });
 
     await act(async () => {
       root.unmount();

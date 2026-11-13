@@ -167,11 +167,12 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
 
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
-    onSuccess: async () => {
+    onSuccess: () => {
       setSignOutOpen(false);
       setOpen(false);
       if (isMobile) setSidebarOpen(false);
-      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
+      queryClient.setQueryData(queryKeys.auth.session, null);
+      navigate("/auth", { replace: true });
     },
   });
 
@@ -350,9 +351,13 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
       </DropdownMenu>
       <SignOutConfirmDialog
         open={signOutOpen}
-        onOpenChange={setSignOutOpen}
+        onOpenChange={(nextOpen) => {
+          setSignOutOpen(nextOpen);
+          if (nextOpen) signOutMutation.reset();
+        }}
         onConfirm={() => signOutMutation.mutate()}
         pending={signOutMutation.isPending}
+        error={signOutMutation.error instanceof Error ? signOutMutation.error.message : null}
       />
     </>
   );
