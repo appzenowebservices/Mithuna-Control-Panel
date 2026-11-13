@@ -160,6 +160,11 @@ export function healthRoutes(
         deploymentExposure: opts.deploymentExposure,
         bootstrapStatus,
         bootstrapInviteActive,
+        features: {
+          googleAuthEnabled: Boolean(
+            process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim(),
+          ),
+        },
         ...(devServer ? { devServer } : {}),
       });
       return;
@@ -175,6 +180,9 @@ export function healthRoutes(
       bootstrapInviteActive,
       features: {
         companyDeletionEnabled: opts.companyDeletionEnabled,
+        googleAuthEnabled: Boolean(
+          process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim(),
+        ),
       },
       ...(devServer ? { devServer } : {}),
     });

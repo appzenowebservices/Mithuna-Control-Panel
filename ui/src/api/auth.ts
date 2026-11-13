@@ -113,6 +113,14 @@ export const authApi = {
     await authPost("/sign-up/email", input);
   },
 
+  signInSocial: async (input: { provider: string; callbackURL?: string }): Promise<void> => {
+    const payload = await authPost("/sign-in/social", input) as { url?: string } | null;
+    if (!payload?.url) {
+      throw new Error("This sign-in provider is not configured on this instance.");
+    }
+    window.location.assign(payload.url);
+  },
+
   getProfile: async (): Promise<CurrentUserProfile> => {
     const res = await fetch("/api/auth/profile", {
       credentials: "include",

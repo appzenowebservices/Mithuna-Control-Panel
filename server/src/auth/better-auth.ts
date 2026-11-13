@@ -140,6 +140,15 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins:
     publicUrl,
   });
 
+  // Optional social login. Enabled only when both values are present, so
+  // deployments without Google keep the email/password form unchanged.
+  const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  const socialProviders =
+    googleClientId && googleClientSecret
+      ? { google: { clientId: googleClientId, clientSecret: googleClientSecret } }
+      : undefined;
+
   const authConfig = {
     baseURL: baseUrl,
     secret,
@@ -158,6 +167,7 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins:
       requireEmailVerification: false,
       disableSignUp: config.authDisableSignUp,
     },
+    ...(socialProviders ? { socialProviders } : {}),
     advanced: buildBetterAuthAdvancedOptions({ disableSecureCookies }),
   };
 
