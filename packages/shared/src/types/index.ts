@@ -112,6 +112,7 @@ export type {
   CatalogSkillFileDetail,
   CompanySkillInstallCatalogRequest,
   CompanySkillInstallCatalogResult,
+  SkillRequirements,
 } from "./company-skill.js";
 export type {
   CatalogTeamKind,

@@ -102,6 +102,7 @@ import {
   Pause,
   Pencil,
   Pin,
+  Plug,
   Plus,
   Copy,
   RefreshCw,
@@ -415,7 +416,7 @@ function TrustChip({ level }: { level: CompanySkillTrustLevel }) {
     markdown_only: {
       icon: ShieldCheck,
       label: "Markdown only",
-      tooltip: "Text only — no scripts, no binaries, no assets.",
+      tooltip: "Text only � no scripts, no binaries, no assets.",
       className: "border-border bg-muted/40 text-muted-foreground",
     },
     assets: {
@@ -458,7 +459,7 @@ function CompatChip({ compatibility }: { compatibility: CompanySkillCompatibilit
     invalid: {
       icon: XOctagon,
       label: "Invalid",
-      tooltip: "This skill cannot be installed — content is not valid Agent Skills markdown.",
+      tooltip: "This skill cannot be installed � content is not valid Agent Skills markdown.",
       className: "border-destructive/40 bg-destructive/10 text-destructive",
     },
   } as const;
@@ -798,48 +799,43 @@ function SkillCategoryChip({ label }: { label: string }) {
 }
 
 function SkillCard({ card, onOpen }: { card: DiscoveryCard; onOpen: (card: DiscoveryCard) => void }) {
+  const source = sourceMeta(card.sourceBadge ?? "catalog", card.sourceLabel ?? null);
+  const SourceIcon = source.icon;
   return (
     <button
       type="button"
       onClick={() => onOpen(card)}
       className={cn(
-        "group flex h-full min-h-[12.5rem] flex-col rounded-3xl border-2 border-border/80 bg-card/80 p-5 text-left shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group flex h-full flex-col rounded-2xl border border-border/70 bg-card p-3 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         card.required && "border-primary/30 bg-card/60",
       )}
     >
-      <div className="flex items-start gap-3">
-        <SkillCardIcon card={card} />
+      <div className="flex items-start gap-2.5">
+        <span className="relative shrink-0 rounded-2xl ring-2 ring-transparent transition-all duration-200 group-hover:ring-primary/30 group-hover:ring-offset-1 group-hover:ring-offset-card">
+          <SkillCardIcon card={card} size={40} />
+        </span>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-black tracking-tight text-foreground">{card.name}</div>
-          <div className="mt-0.5 truncate text-xs font-medium text-muted-foreground">
-            by {card.author}{card.version ? ` · ${card.version}` : ""}
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-sm font-bold tracking-tight text-foreground">{card.name}</span>
+            {card.installed ? (
+              <Check className="size-3.5 shrink-0 text-emerald-600" aria-label="Installed" />
+            ) : null}
+          </div>
+          <div className="truncate text-[11px] text-muted-foreground">
+            by {card.author}
+            {card.version ? ` · ${card.version}` : ""}
           </div>
         </div>
-        {/* Where the skill came from (PAP-10907 E); native title gives a hover hint. */}
-        {(() => {
-          const meta = sourceMeta(card.sourceBadge ?? "catalog", card.sourceLabel ?? null);
-          const SourceIcon = meta.icon;
-          return (
-            <span
-              className="shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
-              title={`From ${meta.label}`}
-              aria-label={`From ${meta.label}`}
-            >
-              <SourceIcon className="h-4 w-4" aria-hidden="true" />
-            </span>
-          );
-        })()}
+        <span
+          className="shrink-0 pt-0.5 text-muted-foreground/70 transition-colors group-hover:text-primary"
+          title={`From ${source.label}`}
+          aria-label={`From ${source.label}`}
+        >
+          <SourceIcon className="h-3.5 w-3.5" aria-hidden="true" />
+        </span>
       </div>
 
-      {card.forkedFrom ? (
-        <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground">
-          <GitFork className="h-3 w-3" aria-hidden="true" />
-          Forked
-        </div>
-      ) : null}
-
-      {/* Always reserve two lines so cards line up even without a description. */}
-      <p className="mt-2 line-clamp-2 min-h-10 text-[13px] leading-5 text-muted-foreground">
+      <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
         {resolveSkillSummaryText({
           tagline: card.tagline,
           description: card.description,
@@ -848,43 +844,92 @@ function SkillCard({ card, onOpen }: { card: DiscoveryCard; onOpen: (card: Disco
         }) ?? ""}
       </p>
 
-      <div className="mt-auto pt-4">
-        {/* Stats: installed agents · stars · forks — stars/forks only when > 0. */}
-        <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground">
-          <span>{card.agentCount} {card.agentCount === 1 ? "agent" : "agents"}</span>
-          {card.starCount > 0 ? (
-            <>
-              <span aria-hidden="true">·</span>
-              <SkillStat icon={Star} value={String(card.starCount)} />
-            </>
-          ) : null}
-          {card.forkCount > 0 ? (
-            <>
-              <span aria-hidden="true">·</span>
-              <SkillStat icon={GitFork} value={String(card.forkCount)} />
-            </>
-          ) : null}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          {card.installed ? (
-            <span className="inline-flex items-center rounded-xl border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[10px] font-black text-emerald-600 dark:text-emerald-300">
-              <Check className="mr-1 h-3 w-3" aria-hidden="true" />
-              Installed
-            </span>
-          ) : null}
-          {card.categories.slice(0, 2).map((category) => (
+      <div className="mt-auto flex items-center justify-between gap-2 pt-2.5 text-[10px] font-semibold text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-1.5">
+          {card.categories.slice(0, 1).map((category) => (
             <SkillCategoryChip key={category} label={category} />
           ))}
-          {card.required ? (
-            <span className="ml-auto inline-flex items-center gap-1 rounded-xl border border-border/60 bg-secondary/50 px-2 py-1 text-[10px] font-black text-foreground/80">
-              <Lock className="h-3 w-3" aria-hidden="true" />
-              Bundled
+          {card.forkedFrom ? (
+            <span className="inline-flex items-center gap-0.5">
+              <GitFork className="h-3 w-3" aria-hidden="true" />
+              fork
             </span>
           ) : null}
+          {card.required ? (
+            <span className="inline-flex items-center gap-0.5">
+              <Lock className="h-3 w-3" aria-hidden="true" />
+              bundled
+            </span>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5 tabular-nums">
+          <span>{card.agentCount} {card.agentCount === 1 ? "agent" : "agents"}</span>
+          {card.starCount > 0 ? <SkillStat icon={Star} value={String(card.starCount)} /> : null}
         </div>
       </div>
     </button>
   );
+}
+
+const SKILL_CATEGORY_GROUPS: Array<{ title: string; slugs: string[] }> = [
+  {
+    title: "Product & Design",
+    slugs: ["design", "ux", "ui", "product", "prototyping", "creative", "frontend", "brand"],
+  },
+  {
+    title: "Engineering & Release",
+    slugs: [
+      "code-review",
+      "release",
+      "acceptance",
+      "changelog",
+      "citations",
+      "docs",
+      "documentation",
+      "software-development",
+      "testing",
+      "devops",
+      "engineering",
+    ],
+  },
+  {
+    title: "Paperclip Core",
+    slugs: ["paperclip", "paperclip-operations"],
+  },
+  {
+    title: "Growth & Communication",
+    slugs: ["announcement", "communication", "content", "social-media", "marketing", "email", "writing"],
+  },
+  {
+    title: "Operations & Research",
+    slugs: ["browser", "delegation", "research", "data-science", "security", "automation", "finance", "ops", "operations"],
+  },
+];
+
+const SKILL_OTHER_GROUP = "Other";
+
+function skillGroupForCategory(category: string | null | undefined): string {
+  const slug = (category ?? "").trim().toLowerCase();
+  if (!slug) return SKILL_OTHER_GROUP;
+  for (const group of SKILL_CATEGORY_GROUPS) {
+    if (group.slugs.includes(slug)) return group.title;
+  }
+  return SKILL_OTHER_GROUP;
+}
+
+function groupSkillCards(cards: DiscoveryCard[]): Array<{ title: string; cards: DiscoveryCard[] }> {
+  const buckets = new Map<string, DiscoveryCard[]>();
+  const order = [...SKILL_CATEGORY_GROUPS.map((group) => group.title), SKILL_OTHER_GROUP];
+  for (const title of order) buckets.set(title, []);
+  for (const card of cards) {
+    const title = card.categories.length > 0
+      ? skillGroupForCategory(card.categories[0])
+      : SKILL_OTHER_GROUP;
+    buckets.get(title)!.push(card);
+  }
+  return order
+    .map((title) => ({ title, cards: buckets.get(title)! }))
+    .filter((group) => group.cards.length > 0);
 }
 
 export type DiscoveryCategory = { slug: string; count: number };
@@ -900,40 +945,63 @@ function CategoryNav({
   active: string | null;
   onSelect: (slug: string | null) => void;
 }) {
+  const grouped = (() => {
+    const buckets = new Map<string, DiscoveryCategory[]>();
+    for (const group of SKILL_CATEGORY_GROUPS) buckets.set(group.title, []);
+    buckets.set(SKILL_OTHER_GROUP, []);
+    for (const category of categories) {
+      const title = skillGroupForCategory(category.slug);
+      buckets.get(title)!.push(category);
+    }
+    return [...SKILL_CATEGORY_GROUPS.map((group) => group.title), SKILL_OTHER_GROUP]
+      .map((title) => ({ title, items: buckets.get(title)! }))
+      .filter((group) => group.items.length > 0);
+  })();
+
   return (
     <nav className="flex flex-col gap-1 px-2">
       <button
         type="button"
         onClick={() => onSelect(null)}
         className={cn(
-          "flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-sm transition-all hover:border-primary/30 hover:bg-primary/15",
+          "flex items-center justify-between gap-2 rounded-xl border px-3 py-1.5 text-sm transition-all hover:border-primary/30 hover:bg-primary/15",
           active == null
             ? "border-primary/40 bg-primary/20 font-black text-foreground shadow-xs"
             : "border-transparent font-semibold text-muted-foreground",
         )}
       >
         <span>All</span>
-        <span className="rounded-xl border border-border/60 bg-secondary/50 px-2 py-0.5 text-[10px] font-black tabular-nums text-foreground/80">
+        <span className="rounded-lg border border-border/60 bg-secondary/50 px-2 py-0.5 text-[10px] font-black tabular-nums text-foreground/80">
           {total}
         </span>
       </button>
-      {categories.map((category) => (
-        <button
-          key={category.slug}
-          type="button"
-          onClick={() => onSelect(category.slug)}
-          className={cn(
-            "flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-sm capitalize transition-all hover:border-primary/30 hover:bg-primary/15",
-            active === category.slug
-              ? "border-primary/40 bg-primary/20 font-black text-foreground shadow-xs"
-              : "border-transparent font-semibold text-muted-foreground",
-          )}
-        >
-          <span className="truncate">{category.slug}</span>
-          <span className="ml-2 shrink-0 rounded-xl border border-border/60 bg-secondary/50 px-2 py-0.5 text-[10px] font-black tabular-nums text-foreground/80">
-            {category.count}
-          </span>
-        </button>
+
+      {grouped.map((group) => (
+        <div key={group.title} className="mt-2">
+          <div className="px-2 pb-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">
+            {group.title}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {group.items.map((category) => (
+              <button
+                key={category.slug}
+                type="button"
+                onClick={() => onSelect(category.slug)}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-[13px] capitalize transition-all hover:border-primary/30 hover:bg-primary/15",
+                  active === category.slug
+                    ? "border-primary/40 bg-primary/20 font-black text-foreground shadow-xs"
+                    : "border-transparent font-semibold text-muted-foreground",
+                )}
+              >
+                <span className="truncate">{category.slug}</span>
+                <span className="ml-2 shrink-0 rounded-md border border-border/60 bg-secondary/50 px-1.5 py-0.5 text-[10px] font-black tabular-nums text-foreground/80">
+                  {category.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       ))}
     </nav>
   );
@@ -986,7 +1054,7 @@ export function DiscoveryGrid({
   scanPending: boolean;
   scanStatus: string | null;
 }) {
-  // Source filter (github / skills.sh / local / …) lives in the grid so it
+  // Source filter (github / skills.sh / local / ⬦) lives in the grid so it
   // narrows whatever the parent already filtered by tab/category/search (PAP-10907 E).
   const [sourceBadgeFilter, setSourceBadgeFilter] = useState<string>("all");
   const availableSources = useMemo(() => {
@@ -1004,13 +1072,14 @@ export function DiscoveryGrid({
     [cards, sourceBadgeFilter],
   );
   const sourceFilterActive = sourceBadgeFilter !== "all";
+  const groupedView = !activeCategory && !search.trim() && !sourceFilterActive;
 
   return (
     // On desktop the store is bounded to the viewport so the category sidebar
     // and the results pane each scroll independently (PAP-10907). Mobile keeps
     // the natural page flow.
     <div className="flex min-h-[calc(100vh-12rem)] overflow-hidden rounded-3xl border-2 border-border/80 bg-card/50 shadow-xl backdrop-blur-md md:h-[calc(100dvh-6rem)] md:min-h-0">
-      {/* Secondary category sidebar — the main app nav collapses to a rail while
+      {/* Secondary category sidebar � the main app nav collapses to a rail while
           this is present (handled in Layout). */}
       <aside className="hidden w-60 shrink-0 flex-col overflow-hidden border-r border-border/60 bg-secondary/10 md:flex">
         <div className="border-b border-border/60 px-5 py-5">
@@ -1045,7 +1114,7 @@ export function DiscoveryGrid({
             <input
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Search skills, authors, categories…"
+              placeholder="Search skills, authors, categories..."
               className="h-full w-full bg-transparent text-base font-semibold outline-none placeholder:font-medium placeholder:text-muted-foreground sm:text-sm"
             />
           </div>
@@ -1152,7 +1221,7 @@ export function DiscoveryGrid({
           </div>
         ) : null}
 
-        {/* Tab strip — Bundled/required lives at the end */}
+        {/* Tab strip � Bundled/required lives at the end */}
         <div className="border-b border-border/60 px-4">
           <Tabs value={tab} onValueChange={(value) => onTabChange(value as DiscoveryTab)}>
             <TabsList variant="line" className="p-0">
@@ -1226,11 +1295,33 @@ export function DiscoveryGrid({
                 {sourceFilteredCards.length} {sourceFilteredCards.length === 1 ? "skill" : "skills"}
                 {activeCategory ? <span className="capitalize"> · {activeCategory}</span> : null}
               </p>
-              <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(20rem,1fr))]">
-                {sourceFilteredCards.map((card) => (
-                  <SkillCard key={card.key} card={card} onOpen={onOpenCard} />
-                ))}
-              </div>
+              {groupedView ? (
+                <div className="space-y-7">
+                  {groupSkillCards(sourceFilteredCards).map((group) => (
+                    <section key={group.title} className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                        <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                          {group.title}
+                        </h2>
+                        <span className="text-[11px] font-bold tabular-nums text-muted-foreground">
+                          {group.cards.length}
+                        </span>
+                      </div>
+                      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]">
+                        {group.cards.map((card) => (
+                          <SkillCard key={card.key} card={card} onOpen={onOpenCard} />
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]">
+                  {sourceFilteredCards.map((card) => (
+                    <SkillCard key={card.key} card={card} onOpen={onOpenCard} />
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1735,7 +1826,7 @@ function CatalogDetailPane({
             </Button>
           </span>
         </TooltipTrigger>
-        <TooltipContent>This skill cannot be installed — its content is not valid Agent Skills markdown.</TooltipContent>
+        <TooltipContent>This skill cannot be installed � its content is not valid Agent Skills markdown.</TooltipContent>
       </Tooltip>
     );
   } else if (!isInstalled) {
@@ -1820,7 +1911,7 @@ function CatalogDetailPane({
           <span className="font-mono">{skill.key}</span>
           <span className="uppercase tracking-[0.18em]">·</span>
           <span className="uppercase tracking-[0.18em]">Hash</span>
-          <span className="font-mono">{skill.contentHash.slice(0, 24)}…</span>
+          <span className="font-mono">{skill.contentHash.slice(0, 24)}⬦</span>
           <CopyText
             text={skill.contentHash}
             copiedLabel="Copied hash"
@@ -1904,7 +1995,7 @@ function InstallPreviewDialog({
     confirmLabel = "Replace existing skill";
     confirmVariant = "destructive";
   }
-  if (isPending) confirmLabel = "Installing…";
+  if (isPending) confirmLabel = "Installing⬦";
 
   return (
     <Dialog open={open} onOpenChange={(value) => (!isPending ? onOpenChange(value) : null)}>
@@ -1950,7 +2041,7 @@ function InstallPreviewDialog({
               <div className="text-foreground">{skill.recommendedForRoles.length === 0 ? "any" : skill.recommendedForRoles.join(" · ")}</div>
               <div className="text-muted-foreground">Provenance</div>
               <div className="min-w-0">
-                <div className="truncate">{packageName ?? "—"}{packageVersion ? ` v${packageVersion}` : ""}</div>
+                <div className="truncate">{packageName ?? "�"}{packageVersion ? ` v${packageVersion}` : ""}</div>
                 <div className="truncate font-mono text-[11px] text-muted-foreground">{skill.contentHash}</div>
               </div>
             </div>
@@ -2179,7 +2270,7 @@ function AttachAgentsPopover({
             }}
             disabled={pending}
           >
-            {pending ? "Saving…" : "Save"}
+            {pending ? "Saving⬦" : "Save"}
           </Button>
         </div>
       </PopoverContent>
@@ -2941,7 +3032,7 @@ export function SkillDetailPage({
         </div>
         {attached.length === 0 ? (
           <div className="rounded-md border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-            No agents are using this skill yet. Use “Add to agent” to attach it.
+            No agents are using this skill yet. Use �SAdd to agent⬝ to attach it.
           </div>
         ) : (
           <div className="border-y border-border">
@@ -3298,7 +3389,7 @@ export function SkillDetailPage({
           </Button>
           <Button size="sm" onClick={onSave} disabled={savePending}>
             <Save className="mr-1.5 h-3.5 w-3.5" />
-            {savePending ? "Saving…" : "Save changes"}
+            {savePending ? "Saving⬦" : "Save changes"}
           </Button>
         </div>
       ) : null}
@@ -3329,8 +3420,8 @@ export function SkillDetailPage({
                 disabled={updateSettingsPending}
                 className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
               >
-                <option value="company">Company — visible inside this company</option>
-                <option value="private">Private — only visible in your library</option>
+                <option value="company">Company � visible inside this company</option>
+                <option value="private">Private � only visible in your library</option>
               </select>
               <p className="text-xs text-muted-foreground">Public link sharing is coming later.</p>
             </div>
@@ -3354,7 +3445,7 @@ export function SkillDetailPage({
                 disabled={!settingsDirty || updateSettingsPending}
               >
                 <Save className="mr-1.5 h-3.5 w-3.5" />
-                {updateSettingsPending ? "Saving…" : "Save settings"}
+                {updateSettingsPending ? "Saving⬦" : "Save settings"}
               </Button>
             </div>
             {detail.editable ? (
@@ -3371,7 +3462,7 @@ export function SkillDetailPage({
                     title={detail.usedByAgents.length > 0 ? "Detach this skill from all agents before removing it." : undefined}
                   >
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    {deletePending ? "Removing…" : "Remove"}
+                    {deletePending ? "Removing⬦" : "Remove"}
                   </Button>
                 </div>
               </div>
@@ -3567,6 +3658,32 @@ function SkillPane({
               <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Mode</span>
               <span>{detail.editable ? "Editable" : "Read only"}</span>
             </div>
+            {detail.requirements &&
+            ((detail.requirements.mcp?.length ?? 0) > 0 ||
+              (detail.requirements.tools?.length ?? 0) > 0) ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Requires
+                </span>
+                {(detail.requirements.mcp ?? []).map((provider) => (
+                  <span
+                    key={`mcp-${provider}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2 py-0.5 text-[11px]"
+                  >
+                    <Plug className="h-3 w-3" aria-hidden="true" />
+                    MCP · {provider}
+                  </span>
+                ))}
+                {(detail.requirements.tools ?? []).map((tool) => (
+                  <span
+                    key={`tool-${tool}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[10px]"
+                  >
+                    {tool}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Trust</span>
@@ -3823,7 +3940,7 @@ export function CompanySkills() {
     ]);
   }, [routeSkillToken, setBreadcrumbs]);
 
-  // The old split catalog view no longer exists — catalog/bundled skills now open
+  // The old split catalog view no longer exists � catalog/bundled skills now open
   // as a regular full page keyed by `?catalog=<ref>`. Strip the legacy `view`
   // param so stale `?view=catalog` deep links land on the new surface (PAP-10907).
   useEffect(() => {
@@ -4724,7 +4841,7 @@ export function CompanySkills() {
         />
       ) : selectedCatalogRef ? (
         // Catalog / optional / bundled skills open as a regular full page in the
-        // new store — no modal, no legacy split view (PAP-10907).
+        // new store � no modal, no legacy split view (PAP-10907).
         <div className="min-h-[calc(100vh-12rem)]">
           <div className="border-b border-border px-4 py-3">
             <Link
@@ -4790,3 +4907,4 @@ export function CompanySkills() {
     </>
   );
 }
+

@@ -4,6 +4,9 @@ description: >
   Operate the live Astrologics system (ephemeris, natal charts, transits,
   readings) through its MCP server. Use for client advisory work - NOT for
   development work on the Astrologics codebase.
+requires:
+  mcp: ["astrologics"]
+  tools: ["compute_natal_chart", "compute_transits", "generate_reading"]
 metadata:
   hermes:
     house: 9

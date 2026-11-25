@@ -85,6 +85,7 @@ import type {
   AdapterEnvironmentTestResult,
 } from "@paperclipai/adapter-utils";
 import { skillVersionSelectionMap } from "../services/runtime-skill-selections.js";
+import { runSkillPreflight } from "../services/skill-preflight.js";
 import { secretService } from "../services/secrets.js";
 import {
   detectAdapterModel,
@@ -1777,6 +1778,21 @@ export function agentRoutes(
       config: runtimeSkillConfig,
     });
     res.json(snapshot);
+  });
+
+  router.get("/agents/:id/skills/preflight", async (req, res) => {
+    const id = req.params.id as string;
+    const agent = await svc.getById(id);
+    if (!agent) {
+      res.status(404).json({ error: "Agent not found" });
+      return;
+    }
+    await assertCanReadConfigurations(req, agent.companyId);
+    const result = await runSkillPreflight(db, {
+      agentId: agent.id,
+      companyId: agent.companyId,
+    });
+    res.status(result.ok ? 200 : 409).json(result);
   });
 
   router.post(

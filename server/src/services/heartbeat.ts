@@ -75,6 +75,7 @@ import { costService } from "./costs.js";
 import { trackAgentFirstHeartbeat } from "@paperclipai/shared/telemetry";
 import { getTelemetryClient } from "../telemetry.js";
 import { companySkillService } from "./company-skills.js";
+import { runSkillPreflight } from "./skill-preflight.js";
 import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService, type MissingRuntimeBinding } from "./secrets.js";
 import { resolveDefaultAgentWorkspaceDir, resolveManagedProjectWorkspaceDir } from "../home-paths.js";
@@ -9769,6 +9770,20 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
         );
       }
       let adapterFinalizeOutcome: "succeeded" | "failed" | null = null;
+
+      const skillPreflight = await runSkillPreflight(db, {
+        agentId: agent.id,
+        companyId: agent.companyId,
+      });
+      if (!skillPreflight.ok) {
+        const details = skillPreflight.issues
+          .filter((issue) => issue.severity === "error")
+          .map((issue) => `${issue.skillName}: missing ${issue.expected} (${issue.kind})`)
+          .join("; ");
+        const message = `Skill preflight failed before dispatch — ${details}`;
+        await onLog("stderr", `[paperclip] ${message}\n`);
+        throw new Error(message);
+      }
 
       let adapterResult: Awaited<ReturnType<typeof adapter.execute>>;
       try {

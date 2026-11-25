@@ -63,6 +63,7 @@ import {
   readPortableCatalogProvenance,
 } from "./catalog-provenance.js";
 import { resolveBundledSkillsRoot } from "./skills-roots.js";
+import { parseSkillRequirements } from "./skill-preflight.js";
 
 type CompanySkillRow = typeof companySkills.$inferSelect;
 type CompanySkillVersionRow = typeof companySkillVersions.$inferSelect;
@@ -1319,6 +1320,10 @@ function toCompanySkill(row: CompanySkillRow): CompanySkill {
     forkCount: Math.max(0, row.forkCount ?? 0),
     currentVersionId: row.currentVersionId ?? null,
     metadata: isPlainRecord(row.metadata) ? row.metadata : null,
+    requirements: parseSkillRequirements(
+      row.markdown,
+      isPlainRecord(row.metadata) ? row.metadata : null,
+    ),
   };
 }
 
@@ -2125,6 +2130,7 @@ function toCompanySkillListItem(skill: CompanySkillListRow, attachedAgentCount: 
     installCount: skill.installCount,
     forkCount: skill.forkCount,
     currentVersionId: skill.currentVersionId,
+    requirements: parseSkillRequirements(null, metadata),
     createdAt: skill.createdAt,
     updatedAt: skill.updatedAt,
     attachedAgentCount,
@@ -4352,6 +4358,9 @@ export function companySkillService(db: Db) {
       const metadata = {
         ...(skill.metadata ?? {}),
         skillKey: skill.key,
+        ...(Object.keys(parseSkillRequirements(skill.markdown, skill.metadata)).length > 0
+          ? { requirements: parseSkillRequirements(skill.markdown, skill.metadata) }
+          : {}),
       };
       const parsed = parseFrontmatterMarkdown(skill.markdown);
       const storeMetadata = readSkillStoreMetadata(parsed.frontmatter, metadata);

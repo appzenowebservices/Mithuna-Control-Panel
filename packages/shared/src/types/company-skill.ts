@@ -19,6 +19,17 @@ export interface CompanySkillVersionFileInventoryEntry extends CompanySkillFileI
   content: string;
 }
 
+/**
+ * Tool-level requirements declared by a skill manifest (`requires:` in
+ * SKILL.md frontmatter). Mcp entries are provider/server keys; tools are
+ * exact MCP tool names. optionalTools are checked but never block a run.
+ */
+export interface SkillRequirements {
+  mcp?: string[];
+  tools?: string[];
+  optionalTools?: string[];
+}
+
 export interface CompanySkill {
   id: string;
   companyId: string;
@@ -48,6 +59,7 @@ export interface CompanySkill {
   forkCount: number;
   currentVersionId: string | null;
   metadata: Record<string, unknown> | null;
+  requirements?: SkillRequirements;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -91,6 +103,7 @@ export interface CompanySkillListItem {
   originHash: string | null;
   packageName: string | null;
   packageVersion: string | null;
+  requirements?: SkillRequirements;
 }
 
 export interface CompanySkillUsageAgent {

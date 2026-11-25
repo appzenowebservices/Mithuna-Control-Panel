@@ -824,6 +824,7 @@ export type {
   PluginWebhookDeliveryRecord,
   QuotaWindow,
   ProviderQuotaResult,
+  SkillRequirements,
   CompanyWorkspace,
   CompanyWorkspaceSourceType,
   CompanyWorkspaceVisibility,
