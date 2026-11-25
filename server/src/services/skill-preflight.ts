@@ -4,11 +4,17 @@ import { agents, companySkills } from "@paperclipai/db";
 import type { SkillRequirements } from "@paperclipai/shared";
 import { parseFrontmatterMarkdown } from "@paperclipai/shared";
 import { readPaperclipSkillSyncPreference } from "@paperclipai/adapter-utils/server-utils";
+import {
+  getCompanyToolInventory,
+  mergeToolInventory,
+  readConfigToolInventory,
+} from "./mcp-inventory.js";
 
 export type SkillPreflightIssueKind =
   | "missing_mcp_provider"
   | "missing_tool"
-  | "unknown_inventory";
+  | "unknown_inventory"
+  | "skill_not_found";
 
 export type SkillPreflightSeverity = "error" | "warning";
 
@@ -116,6 +122,12 @@ export function evaluateSkillPreflight(input: {
   const issues: SkillPreflightIssue[] = [];
   const inventory = input.toolInventory ?? null;
   const boundServers = new Set(input.mcpServers.map((server) => server.trim()).filter(Boolean));
+  // A provider with a synced inventory row is bound even when it comes from a
+  // company-level MCP config (e.g. hermes-agent/config.yaml) rather than the
+  // agent's own adapterConfig.mcpServers list.
+  if (inventory) {
+    for (const server of Object.keys(inventory)) boundServers.add(server);
+  }
 
   for (const skill of input.skills) {
     const { requirements } = skill;
@@ -136,8 +148,11 @@ export function evaluateSkillPreflight(input: {
     }
 
     if ((requirements.tools?.length ?? 0) > 0) {
-      const providerServers = (requirements.mcp ?? []).filter((provider) => boundServers.has(provider));
-      if (!inventory || providerServers.length === 0) {
+      const requiredProviders = requirements.mcp ?? [];
+      const providersWithInventory = requiredProviders.filter(
+        (provider) => inventory && Array.isArray(inventory[provider]),
+      );
+      if (requiredProviders.length === 0 || providersWithInventory.length === 0) {
         issues.push({
           skillKey: skill.key,
           skillName: skill.name,
@@ -151,10 +166,9 @@ export function evaluateSkillPreflight(input: {
         });
       } else {
         for (const tool of requirements.tools ?? []) {
-          const known = providerServers.some((provider) => {
-            const tools = inventory[provider];
-            return Array.isArray(tools) && tools.includes(tool);
-          });
+          const known = providersWithInventory.some((provider) =>
+            inventory![provider]!.includes(tool),
+          );
           if (!known) {
             issues.push({
               skillKey: skill.key,
@@ -162,7 +176,7 @@ export function evaluateSkillPreflight(input: {
               kind: "missing_tool",
               requirement: "tools",
               expected: tool,
-              actual: inventory ? Object.values(inventory).flat() : [],
+              actual: providersWithInventory.flatMap((provider) => inventory![provider] ?? []),
               severity: "error",
               remediation: `Enable the "${tool}" tool on the bound MCP server for this agent.`,
             });
@@ -195,17 +209,6 @@ export function evaluateSkillPreflight(input: {
     checkedSkills: input.skills.map((skill) => skill.key),
     issues,
   };
-}
-
-function readToolInventory(config: Record<string, unknown>): Record<string, string[]> | null {
-  const raw = config.mcpServerTools;
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  const inventory: Record<string, string[]> = {};
-  for (const [server, tools] of Object.entries(raw as Record<string, unknown>)) {
-    const list = normalizeList(tools);
-    if (list.length > 0) inventory[server] = list;
-  }
-  return Object.keys(inventory).length > 0 ? inventory : null;
 }
 
 /**
@@ -251,9 +254,33 @@ export async function runSkillPreflight(
 
   const mcpServers = normalizeList(config.mcpServers);
 
-  return evaluateSkillPreflight({
+  const companyInventory = await getCompanyToolInventory(db, input.companyId);
+  const toolInventory = mergeToolInventory(companyInventory, readConfigToolInventory(config));
+
+  const result = evaluateSkillPreflight({
     skills,
     mcpServers,
-    toolInventory: readToolInventory(config),
+    toolInventory,
   });
+
+  const foundKeys = new Set(rows.map((row) => row.key));
+  const missingSkills = desiredKeys.filter((key) => !foundKeys.has(key));
+  if (missingSkills.length > 0) {
+    result.ok = false;
+    for (const key of missingSkills) {
+      result.issues.push({
+        skillKey: key,
+        skillName: key,
+        kind: "skill_not_found",
+        requirement: "mcp",
+        expected: key,
+        actual: [],
+        severity: "error",
+        remediation:
+          "The agent is assigned a skill key that no longer exists in this company; re-sync the agent's skills.",
+      });
+    }
+  }
+
+  return result;
 }

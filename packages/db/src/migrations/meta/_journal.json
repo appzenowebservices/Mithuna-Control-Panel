@@ -862,6 +862,13 @@
       "when": 1788847644170,
       "tag": "0122_blue_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1795625938130,
+      "tag": "0123_young_blade",
+      "breakpoints": true
     }
   ]
 }

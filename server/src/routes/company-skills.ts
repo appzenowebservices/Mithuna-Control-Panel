@@ -27,6 +27,10 @@ import {
 import { forbidden } from "../errors.js";
 import { assertAuthenticated, assertCompanyAccess, getActorInfo } from "./authz.js";
 import { getTelemetryClient } from "../telemetry.js";
+import {
+  getCompanyToolInventory,
+  upsertCompanyToolInventory,
+} from "../services/mcp-inventory.js";
 
 type SkillTelemetryInput = {
   key: string;
@@ -143,6 +147,33 @@ export function companySkillRoutes(db: Db) {
     assertAuthenticated(req);
     const catalogRef = firstQueryString(req.query.ref) ?? (req.params.catalogId as string);
     res.json(getCatalogSkillOrThrow(catalogRef));
+  });
+
+  router.get("/companies/:companyId/mcp-inventory", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    res.json(await getCompanyToolInventory(db, companyId));
+  });
+
+  router.put("/companies/:companyId/mcp-inventory/:serverName", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    const serverName = req.params.serverName as string;
+    assertCompanyAccess(req, companyId);
+    assertAuthenticated(req);
+    const tools = (req.body as { tools?: unknown } | null)?.tools;
+    if (!Array.isArray(tools) || tools.some((tool) => typeof tool !== "string")) {
+      res.status(400).json({ error: "tools must be an array of tool names" });
+      return;
+    }
+    const saved = await upsertCompanyToolInventory(db, {
+      companyId,
+      serverName,
+      tools,
+      source: typeof (req.body as { source?: unknown })?.source === "string"
+        ? String((req.body as { source?: unknown }).source)
+        : "manual",
+    });
+    res.json(saved);
   });
 
   router.get("/companies/:companyId/skills", async (req, res) => {

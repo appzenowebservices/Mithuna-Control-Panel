@@ -2683,6 +2683,26 @@ export function AgentSkillsTab({
     enabled: Boolean(companyId),
   });
 
+  const { data: skillPreflight } = useQuery({
+    queryKey: ["agents", agent.id, "skills", "preflight"],
+    queryFn: async () => {
+      const res = await fetch(`/api/agents/${agent.id}/skills/preflight`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      return (await res.json()) as {
+        ok: boolean;
+        issues: Array<{
+          skillName: string;
+          expected: string;
+          kind: string;
+          severity: "error" | "warning";
+        }>;
+      };
+    },
+    enabled: Boolean(companyId),
+  });
+
   const { data: companySkills } = useQuery({
     queryKey: queryKeys.companySkills.list(companyId ?? ""),
     queryFn: () => companySkillsApi.list(companyId!),
@@ -2853,6 +2873,26 @@ export function AgentSkillsTab({
           </span>
         ) : null}
       </div>
+
+      {skillPreflight && skillPreflight.issues.length > 0 ? (
+        <div
+          className={cn(
+            "space-y-1 rounded-xl border-2 px-4 py-3 text-sm",
+            skillPreflight.ok
+              ? "border-amber-500/30 bg-amber-50/60 text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-300"
+              : "border-destructive/40 bg-destructive/10 text-destructive",
+          )}
+        >
+          <div className="font-bold">
+            {skillPreflight.ok ? "Skill requirements need attention" : "Runs will be blocked"}
+          </div>
+          {skillPreflight.issues.map((issue, index) => (
+            <div key={`${issue.kind}-${issue.expected}-${index}`}>
+              {issue.skillName}: missing {issue.expected} ({issue.kind})
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {skillSnapshot?.warnings.length ? (
         <div className="space-y-1 rounded-xl border-2 border-amber-500/30 bg-amber-50/60 px-4 py-3 text-sm font-semibold text-amber-800 content-dark:bg-amber-500/15 content-dark:text-amber-300">

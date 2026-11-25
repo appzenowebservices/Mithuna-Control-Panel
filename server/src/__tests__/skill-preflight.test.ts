@@ -99,6 +99,28 @@ describe("skill preflight evaluation", () => {
     );
   });
 
+  it("treats a synced inventory row as a bound provider", () => {
+    const result = evaluateSkillPreflight({
+      skills: [astroSkill],
+      mcpServers: [],
+      toolInventory: {
+        astrologics: ["compute_natal_chart", "compute_transits", "generate_reading"],
+      },
+    });
+    expect(result.ok).toBe(true);
+    expect(result.issues).toEqual([]);
+  });
+
+  it("warns (does not claim missing_tool) when inventory exists for another provider only", () => {
+    const result = evaluateSkillPreflight({
+      skills: [astroSkill],
+      mcpServers: ["astrologics"],
+      toolInventory: { other: ["some_tool"] },
+    });
+    expect(result.ok).toBe(true);
+    expect(result.issues[0]).toMatchObject({ kind: "unknown_inventory", severity: "warning" });
+  });
+
   it("warns instead of failing when inventory is unknown", () => {
     const result = evaluateSkillPreflight({
       skills: [astroSkill],

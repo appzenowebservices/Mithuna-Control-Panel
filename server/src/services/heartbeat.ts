@@ -8530,6 +8530,18 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       return;
     }
 
+    const earlySkillPreflight = await runSkillPreflight(db, {
+      agentId: agent.id,
+      companyId: agent.companyId,
+    });
+    if (!earlySkillPreflight.ok) {
+      const details = earlySkillPreflight.issues
+        .filter((issue) => issue.severity === "error")
+        .map((issue) => `${issue.skillName}: missing ${issue.expected} (${issue.kind})`)
+        .join("; ");
+      throw new Error(`Skill preflight failed before dispatch — ${details}`);
+    }
+
     const runtime = await ensureRuntimeState(agent);
     const context = parseObject(run.contextSnapshot);
     const taskKey = deriveTaskKeyWithHeartbeatFallback(context, null);
@@ -9770,20 +9782,6 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
         );
       }
       let adapterFinalizeOutcome: "succeeded" | "failed" | null = null;
-
-      const skillPreflight = await runSkillPreflight(db, {
-        agentId: agent.id,
-        companyId: agent.companyId,
-      });
-      if (!skillPreflight.ok) {
-        const details = skillPreflight.issues
-          .filter((issue) => issue.severity === "error")
-          .map((issue) => `${issue.skillName}: missing ${issue.expected} (${issue.kind})`)
-          .join("; ");
-        const message = `Skill preflight failed before dispatch — ${details}`;
-        await onLog("stderr", `[paperclip] ${message}\n`);
-        throw new Error(message);
-      }
 
       let adapterResult: Awaited<ReturnType<typeof adapter.execute>>;
       try {
